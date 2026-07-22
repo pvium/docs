@@ -37,7 +37,7 @@ For scheduled payouts, skip the intermediate intent:
 ```ts
 const finalized = await pvium.payout.createFinalized(
   {
-    id: 'payout-2026-07-a',       // required for createFinalized
+    id: crypto.randomUUID(),      // required for createFinalized — must be a UUID
     chain: 'base-testnet',
     type: 'Scheduled',
     payoutCurrency: 'USDC',

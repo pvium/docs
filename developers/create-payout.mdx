@@ -73,7 +73,7 @@ To check identities without adding them, use `resolveRecipients` — it reports 
 
 | Option                         | Purpose                                                                                             |
 | ------------------------------ | --------------------------------------------------------------------------------------------------- |
-| `id`                           | Supply your own payout ID — required for `createFinalized`, useful for correlating with your system |
+| `id`                           | Client-generated payout ID — must be a UUID; required for `createFinalized`. See [Idempotency](/developers/idempotency) |
 | `label`, `name`, `description` | Naming shown in the dashboard and records                                                           |
 | `scheduleDate`                 | Claim date for scheduled payouts (unix seconds)                                                     |
 | `escrowBatch`                  | Link a scheduled payout to the pool it draws from                                                   |

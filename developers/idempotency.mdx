@@ -7,11 +7,17 @@ Duplicate payout runs are the most expensive kind of retry bug. Pvium's idempote
 
 ## Supply your own payout ID
 
-`create` accepts an `id` — your own identifier for the payout. Derive it from the thing that makes the payout unique in your system (an invoice ID, a payroll period, a job ID), not from a random value generated per attempt:
+`create` accepts an optional `id` — a client-generated ID the new payout is created under. It must be a **UUID** (the API validates this); if omitted, the server generates one.
+
+For idempotency, don't use a random UUID per attempt — derive a *deterministic* UUID (v5) from the thing that makes the payout unique in your system, such as an invoice ID or payroll period, so every retry produces the same `id`:
 
 ```ts
+import { v5 as uuidv5 } from 'uuid';
+
+const PAYOUT_NAMESPACE = 'f3b1c9d2-0000-4000-8000-000000000000'; // any fixed UUID
+
 const payout = await pvium.payout.create({
-  id: `payroll-2026-07`,     // stable across retries
+  id: uuidv5('payroll-2026-07', PAYOUT_NAMESPACE), // same input → same UUID, every retry
   chain: 'base',
   type: 'Instant',
   payoutCurrency: 'USDC',
@@ -21,6 +27,14 @@ const payout = await pvium.payout.create({
 
 `createFinalized` requires an `id` for exactly this reason — a create-and-finalize call must be safely retryable.
 
+## Individual payments
+
+Within a batch, a payment's identity is **(batch, receiver, memo)** — enforced by a unique constraint.
+
+- The same receiver can appear on multiple rows in one batch as long as each row carries a distinct memo. Put your per-payment business key in the memo — an invoice code or installment identifier like `INV-1042:install-3` — and each obligation becomes its own idempotent row.
+- Re-adding the same (receiver, memo) never creates a second payment: a direct add is rejected as a duplicate, and an invite-driven attach updates the existing row's amount in place.
+- A retried add-payments call therefore cannot double-pay anyone — the repeated rows collide on (batch, receiver, memo) instead of duplicating.
+
 ## Nonces
 
 Every payout also carries a `nonce`. The SDK generates one automatically; pass your own only if you need the nonce to be deterministic across systems.
@@ -29,7 +43,7 @@ Every payout also carries a `nonce`. The SDK generates one automatically; pass y
 
 1. Compute the payout `id` from your business key before calling Pvium.
 2. On a timeout or network error, retry the same call with the same `id`.
-3. If the payout already exists, fetch it with `pvium.payout.get(id)` and continue from its current state — it may already be created or even finalized.
+3. A retried create whose `id` already exists is rejected as a duplicate — it will not create a second payout, and it will not return the existing one. Catch the conflict, fetch the payout with `pvium.payout.get(id)`, and continue from its current state — it may already be created or even finalized.
 4. Key webhook processing on payout and payment IDs, so re-deliveries are no-ops. See [Webhooks](/developers/webhooks).
 
 ## What finalization adds

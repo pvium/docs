@@ -1,27 +1,41 @@
 ---
 title: "Webhooks"
-description: "Receive and verify payout lifecycle events"
+description: "Receive, verify, and handle payout lifecycle events"
 ---
 
-Configure a webhook on your organization to receive payout lifecycle events instead of polling. Each organization has its own webhook endpoint configuration and signing secret, set from the dashboard.
+Configure a webhook on your organization to receive events instead of polling. Each organization has its own webhook URL and signing secret, set from the dashboard.
+
+## Delivery format
+
+Events arrive as a JSON `POST` to your webhook URL:
+
+```json
+{
+  "event": "<event-name>",
+  "token": "<signed-jwt>",
+  "data": { }
+}
+```
+
+The `token` is an HS256-signed JWT whose payload is `{ event, data, iat, exp }`, signed with your organization's webhook secret. The outer `event` and `data` fields are unauthenticated convenience copies — always verify the token before trusting anything.
 
 ## Verifying deliveries
 
-Every delivery carries a signed token (HS256). Verify it with the SDK before trusting the payload:
+Every SDK ships the same two helpers: `resolvePviumWebhookPayload` (recommended — verifies the token and returns the unwrapped event and data) and `verifyPviumWebhookToken` (low-level, when you already hold the raw token).
 
-```ts
-import { verifyPviumWebhookToken } from '@pvium/sdk';
+<CodeGroup>
+
+```ts TypeScript
+import { resolvePviumWebhookPayload } from '@pvium/sdk';
 
 app.post('/webhooks/pvium', (req, res) => {
   try {
-    const payload = verifyPviumWebhookToken(
-      req.body.token,
+    const webhook = resolvePviumWebhookPayload(
+      req.body,
       process.env.PVIUM_WEBHOOK_SECRET!,
     );
 
-    // payload.event — the event name
-    // payload.data  — the event payload
-    handleEvent(payload.event, payload.data);
+    handleEvent(webhook.event, webhook.data);
     res.sendStatus(200);
   } catch {
     res.sendStatus(401); // invalid signature — do not process
@@ -29,11 +43,195 @@ app.post('/webhooks/pvium', (req, res) => {
 });
 ```
 
-Pass `expectedEvent` in the options to reject tokens for events your handler does not expect. Tokens include issued-at and expiry claims, which verification checks — replayed or stale deliveries fail.
+```python Python
+from pvium_sdk import resolvePviumWebhookPayload
 
-## Handling events
+@app.post("/webhooks/pvium")
+def pvium_webhook():
+    try:
+        webhook = resolvePviumWebhookPayload(
+            request.json,
+            os.environ["PVIUM_WEBHOOK_SECRET"],
+        )
+    except Exception:
+        return "", 401  # invalid signature — do not process
 
-- Acknowledge quickly with a `2xx` and process asynchronously.
-- Treat deliveries as at-least-once: key your processing on the payout and payment IDs in the payload so a re-delivered event is a no-op.
-- Reconcile against [payout records](/controls/records-and-exports) rather than relying on webhooks alone — records are the source of truth for settled payments.
+    handle_event(webhook["event"], webhook["data"])
+    return "", 200
+```
 
+```go Go
+import "github.com/pvium/sdks/go-sdk/webhooks"
+
+func pviumWebhook(w http.ResponseWriter, r *http.Request) {
+    var body map[string]any
+    if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+        w.WriteHeader(http.StatusBadRequest)
+        return
+    }
+
+    payload, err := webhooks.ResolvePviumWebhookPayload(
+        body,
+        os.Getenv("PVIUM_WEBHOOK_SECRET"),
+    )
+    if err != nil {
+        w.WriteHeader(http.StatusUnauthorized) // invalid signature — do not process
+        return
+    }
+
+    handleEvent(payload.Event, payload.Data)
+    w.WriteHeader(http.StatusOK)
+}
+```
+
+</CodeGroup>
+
+Verification checks the signature, the expiry claim, and — when you pass an expected event — that the token's event matches. Replayed, stale, or tampered deliveries fail.
+
+## Events
+
+All payloads carry `appId` — your organization's ID.
+
+| Event | Fires when |
+| --- | --- |
+| `batch.payee.added` | A payee is attached to a batch — by direct add, or when an invitee accepts |
+| `batch.funded` | On-chain funding lands for a batch |
+| `batch.payee.claimed` | A recipient claims their payment from a funded batch |
+| `oauth.invite.accepted` | An invited identity completes the OAuth flow and grants your organization scopes |
+| `contract.created` | A contract (such as an invoice) is created against your organization |
+| `payment.attached` | A transfer is attached to a contract installment |
+
+### Payloads
+
+<AccordionGroup>
+  <Accordion title="batch.payee.added">
+    Emitted in two flows — invite acceptance and direct add — so the field set varies slightly between them; code against the union.
+
+    ```json
+    {
+      "appId": "65f...",
+      "batch": { "id": "uuid-batch", "chain": "base", "status": "pending" },
+      "payee": {
+        "identityType": "email",
+        "identityValue": "alice@example.com",
+        "receiver": "0xRecipient...",
+        "amount": 100,
+        "memo": "Bonus payment"
+      },
+      "user": { "id": "67d...", "handle": "alice", "email": "alice@example.com" },
+      "invite": { "id": "inv-id", "batchId": "uuid-batch", "acceptedAt": "2026-05-12T..." }
+    }
+    ```
+  </Accordion>
+  <Accordion title="batch.funded">
+    Instant batches fire once, on the single payment transaction. Scheduled and pool batches fire on every funding transaction — watch `batch.fullyFunded` for the transition into fully funded.
+
+    ```json
+    {
+      "appId": "65f...",
+      "batch": {
+        "id": "uuid-batch",
+        "chain": "base",
+        "status": "funded",
+        "batchHash": "0x...",
+        "batchTransactionHash": "0x...",
+        "totalFunded": 1500,
+        "fullyFunded": true
+      },
+      "funding": {
+        "amount": 1500,
+        "token": "0xTokenContract...",
+        "fundedAt": 1747068664,
+        "transactionHash": "0x..."
+      }
+    }
+    ```
+  </Accordion>
+  <Accordion title="batch.payee.claimed">
+    Fires the first time a payment transitions from unclaimed to claimed — duplicate claim events are debounced.
+
+    ```json
+    {
+      "appId": "65f...",
+      "batch": { "id": "uuid-batch", "chain": "base", "status": "funded", "batchHash": "0x..." },
+      "payee": {
+        "paymentId": "uuid-payment",
+        "receiver": "0xRecipient...",
+        "amount": 250,
+        "token": "0xTokenContract...",
+        "decimals": 6,
+        "memo": "INV-1042:install-3",
+        "claimDate": 1747068664
+      },
+      "claim": {
+        "claimedAt": "2026-05-12T18:31:04.000Z",
+        "transactionHash": "0xclaim...",
+        "onchainAmount": "250000000"
+      }
+    }
+    ```
+  </Accordion>
+  <Accordion title="oauth.invite.accepted">
+    Delivers the payee's resolved identity plus the authorization your organization was granted, including access and refresh tokens.
+
+    ```json
+    {
+      "appId": "65f...",
+      "clientId": "app_abcd1234",
+      "user": { "id": "67d...", "handle": "alice", "email": "alice@example.com" },
+      "authorization": {
+        "id": "aa1...",
+        "scopes": ["read:user", "read:kyc"],
+        "expiresAt": "2027-05-12T18:31:04.000Z",
+        "tokenType": "Bearer"
+      },
+      "accessToken": "access_...",
+      "refreshToken": "refresh_...",
+      "invite": {
+        "identityType": "email",
+        "identityValue": "alice@example.com",
+        "batchId": "uuid-or-null",
+        "acceptedAt": "2026-05-12T18:31:04.000Z"
+      }
+    }
+    ```
+  </Accordion>
+  <Accordion title="contract.created">
+    ```json
+    {
+      "appId": "65f...",
+      "contract": {
+        "id": "8a3...",
+        "name": "Invoice #1042",
+        "code": "INV-1042",
+        "contractType": "Invoice"
+      },
+      "paymentData": null
+    }
+    ```
+  </Accordion>
+  <Accordion title="payment.attached">
+    ```json
+    {
+      "appId": "65f...",
+      "contract": { "id": "8a3...", "name": "Invoice #1042" },
+      "paymentData": {
+        "id": "9b2...",
+        "amount": 250,
+        "paymentDate": "2026-05-12T18:31:04.000Z",
+        "transactionHash": "0xabc..."
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Retries and idempotency
+
+Pvium retries failed deliveries with exponential backoff, so treat your handler as idempotent. Dedup on the stable key each event carries:
+
+- `batch.funded` and `batch.payee.claimed` — the `transactionHash`
+- `payment.attached` — `paymentData.id`
+- `oauth.invite.accepted` and `batch.payee.added` — `invite.id` or `authorization.id`
+
+Acknowledge quickly with a `2xx` and process asynchronously, and reconcile against [payout records](/controls/records-and-exports) rather than relying on webhooks alone — records are the source of truth for settled payments.

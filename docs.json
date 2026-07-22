@@ -7,6 +7,14 @@
     "light": "#2a9fd8",
     "dark": "#1F7DAD"
   },
+  "fonts": {
+    "heading": {
+      "family": "Space Grotesk"
+    },
+    "body": {
+      "family": "DM Sans"
+    }
+  },
   "favicon": "/favicon.png",
   "navigation": {
     "tabs": [

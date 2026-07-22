@@ -1,6 +1,18 @@
 /* Pvium docs theme overrides.
    Buttons and links use Pvium blue via docs.json colors (#1F7DAD).
+   Headings use Space Grotesk and body uses DM Sans via docs.json fonts.
    Sidebar navigation uses faint gold for hover and active states. */
+
+/* Code, hashes, and amounts — JetBrains Mono, matching the app */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+code,
+pre,
+pre *,
+kbd,
+samp {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+}
 
 /* Sidebar hover — faint gold wash */
 #sidebar a:hover,
