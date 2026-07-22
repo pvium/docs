@@ -1,0 +1,140 @@
+---
+title: 'API overview'
+description: 'Build automated payout workflows with Pvium'
+---
+
+Use the Pvium API and Node SDK to create payouts, resolve recipients from identities, finalize payouts with your organization's signature, and track and reconcile everything from your backend.
+
+The integration follows the same shape as the dashboard flow:
+
+1. **Create** a payout with payments, or with recipients identified by handle, email, wallet, or social account.
+2. **Finalize** it with your organization's signer — this locks recipients, amounts, and schedule cryptographically.
+3. **Fund** it through the generated funding link, from whatever wallet your treasury controls.
+4. **Track** it through webhooks and payout records.
+
+Creating and finalizing never move money. Funding is a separate, wallet-gated step — see [Security](/concepts/security) for why.
+
+## Environments
+
+Pvium runs three fully isolated environments. Accounts, organizations, API keys, and payouts do not carry across environments.
+
+| Environment    | API base URL                       | Dashboard                                      | Use for                                                                          |
+| -------------- | ---------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------- |
+| **Production** | `https://api.pvium.com/v1`         | [pvium.com](https://pvium.com)                 | Live payouts on mainnet rails                                                 |
+| **Sandbox**    | `https://api-sandbox.pvium.com/v1` | [sandbox.pvium.com](https://sandbox.pvium.com) | Integration testing on test rails such as `base-testnet` |
+
+The SDKs select the environment for you:
+
+<CodeGroup>
+
+```ts TypeScript
+import { PviumSdk } from '@pvium/sdk';
+
+const pvium = PviumSdk.init({
+  environment: 'sandbox', // or 'production'
+  apiKey: process.env.PVIUM_API_KEY,
+  clientId: process.env.PVIUM_CLIENT_ID,
+});
+```
+
+```python Python
+from pvium_sdk import PviumSdk, PviumSdkConfig
+
+pvium = PviumSdk.init(
+    PviumSdkConfig(
+        environment="sandbox",  # or "production"
+        apiKey="your_api_key",
+        clientId="your_client_id",
+    )
+)
+```
+
+```go Go
+package main
+
+import (
+	"os"
+
+	pvium "github.com/pvium/sdks/go-sdk"
+)
+
+func main() {
+	sdk := pvium.Init(pvium.Config{
+		Environment: pvium.EnvironmentSandbox, // or EnvironmentProduction
+		APIKey:      os.Getenv("PVIUM_API_KEY"),
+		ClientID:    os.Getenv("PVIUM_CLIENT_ID"),
+	})
+	_ = sdk
+}
+```
+
+</CodeGroup>
+
+Funding links generated in an environment resolve to that environment's dashboard host, so a sandbox payout is always funded through the sandbox checkout.
+
+<Tip>
+  Build against sandbox first. Sandbox payouts settle on test rails, so you
+  can exercise the full create → finalize → fund → track loop without real
+  funds.
+</Tip>
+
+## Rails and currencies
+
+| Chain | Rail | Environment |
+| --- | --- | --- |
+| `base` | Base | Production |
+| `bsc` | BNB Smart Chain | Production |
+| `base-testnet` | Base Sepolia | Sandbox |
+
+| Currency | Description |
+| --- | --- |
+| `USDC` | USD Coin |
+| `USDT` | Tether USD |
+
+`payoutCurrency` is optional. If you leave it unset, the payout uses the chain's default currency. You can also set a specific `token` per payment instead of a payout-wide currency.
+
+## Organizations
+
+Every API integration acts as an **organization** — the workspace your payouts, records, and payees live in. (Organizations are called client apps in some older API paths.)
+
+You create one from the dashboard with **Create Organization**: give it a name, link it to your business profile, and optionally add a description, website, and logo. Each organization gets:
+
+- A **client ID** that identifies it in API calls and OAuth flows
+- Its own **API keys**, scoped to that organization
+- Its own **webhook configuration** and signing secret
+- Its own payouts, records, tax forms, and connected payees
+
+Create separate organizations for separate payout programs — for example, one for contractor payroll and one for creator rewards — so their keys, records, and payees stay isolated.
+
+<Card
+  title='Organizations concept'
+  icon='building'
+  href='/concepts/organizations'
+>
+  What organizations scope, and how they relate to business profiles.
+</Card>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card
+    title='Send your first payout'
+    icon='rocket'
+    href='/developers/quickstart'
+  >
+    Create, finalize, and fund a payout with the Node SDK.
+  </Card>
+  <Card title='Authentication' icon='key' href='/developers/authentication'>
+    API keys, OAuth access tokens, and signer keys.
+  </Card>
+  <Card title='Create a payout' icon='plus' href='/developers/create-payout'>
+    Payout types, chains, currencies, payments, and recipients.
+  </Card>
+  <Card
+    title='Finalize a payout'
+    icon='signature'
+    href='/developers/finalize-payout'
+  >
+    Sign a payout and generate its funding link.
+  </Card>
+</CardGroup>

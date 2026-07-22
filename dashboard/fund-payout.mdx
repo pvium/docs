@@ -1,0 +1,30 @@
+---
+title: "Fund a payout"
+description: "Pay the signed batch from your organization's wallet"
+---
+
+Funding is the only step that moves money, and it works like paying a checkout: the signed batch is a fixed bill, and your organization pays it from its own wallet.
+
+## Fund the batch
+
+On a signed batch, select **Fund Batch**. This opens the batch's payment page — the checkout for exactly what you signed. Pay it from your organization's wallet, and the batch shows **Batch Funded** once the payment confirms.
+
+Because the batch was signed first, the payment page can only fund the recipients, amounts, and schedule you reviewed — the link cannot be repurposed to pay anything else. That also makes it safe to hand off: whoever controls the treasury wallet can open the payment page and pay it, applying whatever vetting your organization requires. See [Security](/concepts/security#funding-works-like-a-checkout).
+
+## What happens after funding
+
+- **Instant payouts** pay receivers as soon as funding confirms.
+- **Scheduled payouts** become claimable from the payment date.
+- **Dynamic pools** hold the funds, and scheduled payouts draw from the pool.
+
+A batch funded for less than its total shows as **partially funded** until the remainder is paid.
+
+## If funding does not complete
+
+Nothing is at risk while a batch sits signed but unfunded — no money has moved, and the batch stays listed with its current status so you can fund it later. Batches you no longer intend to pay can be canceled, and unfunded batches surface in the dashboard as waiting on funding.
+
+## Next step
+
+<Card title="Track payout status" icon="activity" href="/dashboard/track-status">
+  Follow the batch from funded through completed.
+</Card>

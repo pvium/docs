@@ -1,53 +1,131 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "name": "Pvium Docs",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#1F7DAD",
+    "light": "#2a9fd8",
+    "dark": "#1F7DAD"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/favicon.png",
   "navigation": {
-    "pages": [
+    "tabs": [
       {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart"
+        "tab": "Get Started",
+        "icon": "rocket",
+        "groups": [
+          {
+            "group": "Get started",
+            "pages": [
+              "index",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Concepts",
+            "pages": [
+              "concepts/identity",
+              "concepts/organizations",
+              "concepts/payout-types",
+              "concepts/scopes-and-invites",
+              "concepts/security",
+              "concepts/compliance-and-audit",
+              "concepts/non-custodial-payouts"
+            ]
+          },
+          {
+            "group": "Compliance and audit",
+            "pages": [
+              "controls/recipient-verification",
+              "controls/tax-certificates",
+              "controls/records-and-exports"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Dashboard",
+        "icon": "layout-dashboard",
+        "groups": [
+          {
+            "group": "Get started",
+            "pages": [
+              "quickstart-dashboard"
+            ]
+          },
+          {
+            "group": "Payout workflow",
+            "pages": [
+              "dashboard/create-payout",
+              "dashboard/add-recipients",
+              "dashboard/review-and-approve",
+              "dashboard/fund-payout",
+              "dashboard/track-status"
+            ]
+          },
+          {
+            "group": "Records and tax",
+            "pages": [
+              "dashboard/tax-forms",
+              "dashboard/export-records"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Developer",
+        "icon": "code",
+        "groups": [
+          {
+            "group": "Get started",
+            "pages": [
+              "developers/api-overview",
+              "developers/quickstart",
+              "developers/authentication"
+            ]
+          },
+          {
+            "group": "Payout automation",
+            "pages": [
+              "developers/create-payout",
+              "developers/finalize-payout",
+              "developers/signing-keys",
+              "developers/webhooks",
+              "developers/idempotency",
+              "developers/sdks"
+            ]
+          },
+          {
+            "group": "Concepts",
+            "pages": [
+              "concepts/identity",
+              "concepts/organizations",
+              "concepts/payout-types",
+              "concepts/scopes-and-invites",
+              "concepts/security",
+              "concepts/compliance-and-audit",
+              "concepts/non-custodial-payouts"
+            ]
+          }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo/light.png",
+    "dark": "/logo/dark.png"
   },
   "navbar": {
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "https://pvium.com"
       }
     ],
     "primary": {
       "type": "button",
       "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+      "href": "https://pvium.com"
     }
   },
   "contextual": {
@@ -64,9 +142,7 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "github": "https://github.com/pvium"
     }
   }
 }

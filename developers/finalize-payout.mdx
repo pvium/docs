@@ -1,0 +1,75 @@
+---
+title: "Finalize a payout"
+description: "Sign a payout to lock it and generate its funding link"
+---
+
+Finalization is the step that makes a payout tamper-proof. Your organization's signer signs the payout's contents — after that, recipients, amounts, and schedule cannot change, and the payout can be funded but never altered.
+
+```ts
+import { createSignerFromPrivateKey } from '@pvium/sdk';
+
+const signer = createSignerFromPrivateKey(process.env.PVIUM_SIGNER_KEY!);
+const finalized = await payout.finalize(signer);
+
+finalized.data.fundingUrl;  // checkout link for your treasury
+finalized.data.batchHash;   // the signed payout hash
+finalized.data.merkleRoot;  // commitment to the exact payment set
+```
+
+## What finalization does
+
+Under the hood, the SDK:
+
+1. Computes the payout hash from its funding token, timing rules, and rail.
+2. Builds a Merkle tree over the exact payments, so each recipient's claim is provable against the signed root.
+3. Signs the result with your signer and stores the signature, hashes, and per-recipient proofs with the payout.
+
+Because the signature commits to the full payment set, changing anything afterward invalidates it — this is the guarantee behind the "tamper-proof" note in the dashboard's signing dialog. See [Security](/concepts/security#cryptographic-payout-finalization).
+
+## The funding link
+
+`fundingUrl` points at the environment's dashboard checkout (for example `https://sandbox.pvium.com/batch/0x…`). It represents a fixed, signed bill: whoever opens it can fund exactly the payout you signed — nothing else. Hand it to whoever controls your treasury wallet; their controls govern the payment.
+
+## Create and finalize in one call
+
+For scheduled payouts, skip the intermediate intent:
+
+```ts
+const finalized = await pvium.payout.createFinalized(
+  {
+    id: 'payout-2026-07-a',       // required for createFinalized
+    chain: 'base-testnet',
+    type: 'Scheduled',
+    payoutCurrency: 'USDC',
+    scheduleDate: 1753315200,
+    payments: [{ receiver: '0xA1b2…', amount: 250 }],
+  },
+  signer,
+);
+```
+
+## Finalize options
+
+| Option | Purpose |
+| --- | --- |
+| `claimDate` | When recipients can start claiming |
+| `gracePeriod`, `disapprovalDeadline` | Timing rules baked into the signed hash |
+| `fundingToken` | Override the token the payout is funded in |
+| `escrowBatch` | Fund a scheduled payout from a finalized pool (the pool must be finalized first) |
+
+## Signers
+
+The signer is your organization's **signing key**, generated in the dashboard's Signing Key tab — see [Signing keys](/developers/signing-keys).
+
+- `createSignerFromPrivateKey(key)` creates an EVM signer from a private key held in backend configuration.
+- Pass a custom signing function when your key lives elsewhere, such as an HSM or KMS.
+
+Keep signer keys strictly on your backend. The signer *is* your organization's authorization — treat it with the same care as the treasury wallet itself.
+
+## Payout keys
+
+For pooled payouts, scoped **payout keys** can be authorized on the finalized pool — secondary keys with a per-transaction max, a total max, and an expiration, so an operational service can pay out of the pool within a bounded envelope while your signing key stays cold.
+
+<Card title="Signing keys" icon="key" href="/developers/signing-keys">
+  The funding signer, payout keys, and how to authorize them from the dashboard or SDK.
+</Card>

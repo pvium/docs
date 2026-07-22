@@ -1,47 +1,114 @@
 ---
 title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+description: "Send an instant or scheduled payout"
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
+Use the quick payout flow to pay one or a few people from the dashboard — records, screening, and documents included — without setting up a custom integration.
 
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
+Quick payouts support two payout types, controlled by the payment date:
 
-## Prerequisites
+- **Instant payouts**: leave the payment date unset and funds move as soon as you pay.
+- **Scheduled payouts**: set a payment date and recipients can claim from that date.
 
-Before you begin, you must have:
+## Before you begin
 
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
+Choose the right environment:
 
-## Get started
+- **Sandbox**: use [sandbox.pvium.com](https://sandbox.pvium.com) to test payout setup, recipient validation, and approval workflows.
+- **Production**: use [pvium.com](https://pvium.com) for live payouts.
+
+You need:
+
+- A Pvium account
+- A payout account with funds available
+- Permission to create and approve payouts
+- A way to identify each recipient: Pvium handle, wallet address, email, or a GitHub, X, Discord, or Telegram handle
+- Payout amounts for each recipient
+- Tax certificates, such as W-8 or W-9 records, when required
+
+<Tip>
+  Start in sandbox before sending live payouts in production.
+</Tip>
+
+## Send your first payout
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+  <Step title="Open quick payout">
+    Sign in to the Pvium dashboard for your environment and start a quick payout.
 
-    ```bash
-    npm install your-package
-    ```
+    Quick payout is designed for paying one or a few people, with records, screening, and documents handled in the same flow.
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
 
-    ```bash
-    your-cli init
-    ```
+  <Step title="Choose how recipients are handled">
+    Pick a recipient mode:
+
+    - **Direct — pay immediately**: you add the recipients yourself and pay right away. Suitable when you are handling compliance externally.
+    - **Verified payees only**: each recipient must provide the legal information needed to stay compliant before they can be paid.
+
+    Then choose the **rail** the payout settles on, and continue.
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
 
-    ```bash
-    your-cli start
-    ```
+  <Step title="Set the payment details">
+    Optionally give the payout a **label** so it is easy to find in records later.
+
+    Set the **payment date**:
+
+    - Leave it unset to pay instantly — funds move as soon as you pay.
+    - Pick a date to schedule the payout — recipients can claim from that date.
+  </Step>
+
+  <Step title="Add receivers">
+    Select **Add receiver** to open the payee picker. You can:
+
+    - Select from **connected accounts** — authorized team members who have connected their accounts via OAuth.
+    - Add new payees by Pvium handle, wallet address, email, or a GitHub, X, Discord, or Telegram handle.
+
+    Enter the amount for each receiver, adjust per-receiver claim dates if needed, and confirm the **total payout** shown next to Continue.
+  </Step>
+
+  <Step title="Review and sign">
+    The **Sign to Confirm Payout** dialog summarizes the rail, recipient count, total amount, and scheduled claim date. Check these against what you intended — this is where an incorrect recipient, amount, or date gets caught.
+
+    Signing makes the payout tamper-proof: after you sign, the recipients, amounts, and other details cannot be changed — even by Pvium. Signing does not move money yet.
+  </Step>
+
+  <Step title="Fund the payout">
+    Fund the signed payout from your payout account. Pvium does not hold your money before this point — funds move only when you fund the payout, and only against the exact details you signed.
+
+    Instant payouts pay out as soon as you fund them. Scheduled payouts become claimable on the payment date.
+  </Step>
+
+  <Step title="Track delivery">
+    Track each payout through its lifecycle.
+
+    The dashboard shows whether a payout was created, signed, funded, delivered, failed, expired, or canceled.
+  </Step>
+
+  <Step title="Export records">
+    Export payout records for reconciliation, audit review, and accounting tools such as QuickBooks.
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+## What Pvium controls for
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
-</Tip>
+Pvium is designed for operational risk as much as payment execution. A finance team needs confidence that payouts happen once, to the right people, with records they can explain later.
+
+Pvium helps with:
+
+- Payment execution: clear payout states, retry paths, and delivery tracking
+- Recipient risk: recipient checks, ownership verification, and revocation paths for undelivered payouts where supported
+- Compliance risk: tax certificate collection, sanctions screening, AML checks, payout records, and audit trails
+- Internal fraud risk: permissions, approvals, and separation between payout creation and payout approval
+- Human error: payout previews, total confirmation, and validation before funding
+- Vendor risk: funds that stay with your organization and exportable payout history
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Payout types" icon="layers" href="/concepts/payout-types">
+    Learn when to use instant, scheduled, pooled, and milestone payouts.
+  </Card>
+  <Card title="Non-custodial architecture" icon="shield-check" href="/concepts/non-custodial-payouts">
+    Learn what non-custodial means and why it matters for payout operations.
+  </Card>
+</CardGroup>

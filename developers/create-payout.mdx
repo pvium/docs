@@ -1,0 +1,90 @@
+---
+title: 'Create a payout'
+description: 'Create a payout with payments or identity-based recipients'
+---
+
+`pvium.payout.create` creates a payout and returns a `PayoutIntent` you can keep editing until finalization. Nothing moves money at this stage.
+
+## Payout types
+
+| Type        | Behavior                                             |
+| ----------- | ---------------------------------------------------- |
+| `Instant`   | Pays receivers as soon as the payout is funded       |
+| `Scheduled` | Recipients can claim from a claim date               |
+| `Pool`      | A funded pool that scheduled child payouts draw from |
+| `Milestone` | Pool-backed payouts released against milestones      |
+
+## Rails and currencies
+
+Payouts settle on `base` or `bsc` in production, and `base-testnet` in sandbox.
+
+Set the currency once for the whole payout with `payoutCurrency: 'USDC' | 'USDT'`, or specify `token` (and `decimals`) per payment when you need a specific token contract. Currency is optional — a payout with no currency or token set uses the chain's default currency.
+
+## Payments
+
+Each payment takes:
+
+```ts
+{
+  receiver: '0xA1b2…',   // wallet address
+  amount: 250,           // in payout currency units
+  memo: 'July retainer', // optional, shows in records
+  claimDate: 1753315200, // optional, unix seconds — when claiming opens
+  claimEnd: 1756000000,  // optional — when claiming closes
+  publicId: 'inv-1042',  // optional, your own reference
+}
+```
+
+Until finalization you can manage payments freely: `addPayments`, `updatePayment`, `removePayments`, `deletePayment`, and `listPayments` on the payout, or via `pvium.payout.*` with the payout ID.
+
+## Recipients by identity
+
+When you know people by identity rather than address, add recipients instead of payments:
+
+```ts
+const { added, errors } = await payout.addRecipients({
+  recipients: [
+    {
+      identityType: 'github',
+      identityValue: 'octocat',
+      defaultPayoutAmount: 100,
+    },
+    {
+      identityType: 'email',
+      identityValue: 'dev@example.com',
+      defaultPayoutAmount: 150,
+    },
+  ],
+});
+```
+
+Supported identity types match the dashboard: Pvium handle, wallet, email, GitHub, X, Discord, and Telegram. Recipients must already be Pvium users — an identity that resolves is added with the payee's account and wallet, while one that does not comes back in `errors` (so a bad identity fails that recipient, not the batch) and needs an invite instead.
+
+To check identities without adding them, use `resolveRecipients` — it reports which identities already resolve to Pvium accounts (with their wallets) and which would need an invite.
+
+## Compliance mode
+
+`complianceMode` controls recipient handling, mirroring the dashboard's recipient modes:
+
+- `'Open'` (default) — you add recipients and pay directly, handling compliance externally.
+- `'Strict'` — verified payees only: recipients must provide the legal information required to stay compliant before they can be paid.
+
+## Useful create options
+
+| Option                         | Purpose                                                                                             |
+| ------------------------------ | --------------------------------------------------------------------------------------------------- |
+| `id`                           | Supply your own payout ID — required for `createFinalized`, useful for correlating with your system |
+| `label`, `name`, `description` | Naming shown in the dashboard and records                                                           |
+| `scheduleDate`                 | Claim date for scheduled payouts (unix seconds)                                                     |
+| `escrowBatch`                  | Link a scheduled payout to the pool it draws from                                                   |
+| `metadata`                     | Arbitrary key–values kept on the payout for reconciliation                                          |
+
+## Next step
+
+<Card
+  title='Finalize the payout'
+  icon='signature'
+  href='/developers/finalize-payout'
+>
+  Sign the payout to lock it and generate its funding link.
+</Card>

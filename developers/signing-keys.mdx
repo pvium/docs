@@ -1,0 +1,85 @@
+---
+title: 'Signing keys'
+description: 'The signing key that finalizes payouts, and the payout keys that execute pooled payouts'
+---
+
+API keys authenticate requests. **Signing keys authorize money.** Pvium has two kinds, with a strict hierarchy between them.
+
+## The signing key — your finalization key
+
+The signing key is what the SDK or API uses to **finalize** payouts. Its signature is what the pool and scheduled payout smart contract trusts — recipients, amounts, and schedule are locked under it, and no payout executes without it, directly or indirectly.
+
+You generate it — or register your own — in the organization's dashboard, under the **Signing Key** tab:
+
+1. Open your organization and go to **Signing Keys**.
+2. Add a key: give it a **label**, choose the **key type** (Ethereum), and either paste a **public key** or generate a fresh keypair in place.
+3. If you generate, copy the private key immediately and store it in backend configuration — Pvium keeps only the public key.
+
+The private key is what you pass to `finalize` on your backend:
+
+```ts
+import { createSignerFromPrivateKey } from '@pvium/sdk';
+
+const signer = createSignerFromPrivateKey(process.env.PVIUM_SIGNER_KEY!);
+const finalized = await payout.finalize(signer);
+```
+
+Whatever controls this key controls finalization, which is why treasury-level controls belong in front of funding — see [Security](/concepts/security#funding-works-like-a-checkout). Its custody model is covered below: only the public key is registered, and signing can run through an injected custom signer.
+
+## Payout keys — pooled payouts only
+
+A **payout key** applies only to **Pooled** payout types. Your signing key authorizes it for a single pool batch, with hard limits baked into the authorization:
+
+| Limit | Meaning |
+| --- | --- |
+| **Per-transaction max** | The most a single payout transaction can move |
+| **Total max** | The most the key can move across its lifetime |
+| **Expiration** | When the key stops working entirely |
+
+The authorization is itself signed, and it only applies to the pool it names. A payout key cannot exceed its caps, cannot touch other batches, and dies at its expiration — the worst case is always the envelope you signed.
+
+Use payout keys to let an automated service pay out of a funded pool within a bounded envelope while your signing key stays cold.
+
+### In the dashboard
+
+On a funded pool batch, select **Add Payout Key**. The batch must be activated first, and you must connect the same wallet that funded it — no other wallet can authorize keys for the batch. Provide:
+
+- A **label** (for example, "Production Key")
+- The **key type** (Ethereum)
+- The **public key** — paste one, or generate a fresh keypair in place. If you generate, copy and store the private key immediately; Pvium does not keep it.
+- The **per-transaction max**, **total max**, and **expiration in days**
+
+### With the SDK
+
+The Node SDK builds and signs the same authorization:
+
+```ts
+const authorization = await pvium.payout.authorizeSigningKey(
+  batchHash, // the finalized pool batch this key may act on
+  delegateAddress, // the payout key's public address
+  'ethereum',
+  {
+    transactionMax: '500',
+    totalMax: '5000',
+    expiration: '1756000000',
+  },
+  signer, // must match the batch's funding signer
+);
+```
+
+## Key custody stays with you
+
+Both keys follow the same custody model:
+
+- **Pvium registers only the public key.** Whether you generate the keypair or bring your own, the private key stays on your system — it is never sent to or stored by Pvium.
+- **Custom signers can be injected.** Both `finalize` and `authorizeSigningKey` accept a signing function in place of a raw private key, so signing can be delegated to AWS KMS, an HSM, or any other signing module. The private key never has to exist in application memory — the SDK only ever sends the resulting signatures.
+
+## Which key for what
+
+| Key | Held by | Can do | Cannot do |
+| --- | --- | --- | --- |
+| API key | Your backend | Create and manage payout records | Move money |
+| Signing key | Your backend (generated in the Signing Key tab) | Finalize payouts | — (root authority) |
+| Payout key | An operational service | Pay out of one pool, within its caps | Exceed caps, outlive expiration, touch other batches |
+
+Keep all of them out of client-side code, and see [Authentication](/developers/authentication) for handling guidance.

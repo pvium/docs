@@ -1,0 +1,68 @@
+---
+title: "Scopes and invites"
+description: "Invites request consented, scoped access to a payee's verified information"
+---
+
+An invite in Pvium is more than a payment link. It is a request: *pay this identity, and ask them to share the specific information your organization needs to pay them compliantly.*
+
+That request is expressed in **scopes** — named permissions over the payee's verified data. The payee sees what is being requested and grants it by accepting the invite. Your organization gets exactly what it asked for, nothing more.
+
+## What a scope is
+
+A scope names one piece of access, in the form `read:resource` or `write:resource` — for example, `read:kyc` grants read access to a payee's verified name and address. Scopes are granular on purpose: paying someone should not mean seeing everything about them.
+
+## Default invite scopes
+
+Every payee invite requests a baseline your organization needs to pay someone compliantly:
+
+| Scope | Grants |
+| --- | --- |
+| `read:user` | The payee's profile |
+| `read:kyc` | Verified name and address |
+| `read:tax_certificates` | Tax ID and certificates such as W-8 and W-9 |
+
+An invite also requests read access to the payee's wallet on the rail the payout settles on, so the payout can reach them.
+
+## Additional scopes
+
+Beyond the defaults, an invite can request more, grouped by category:
+
+- **User** — business profiles linked to the payee
+- **Wallets** — the payee's wallet details
+- **Social** — the payee's GitHub, X, Telegram, or Discord handle
+- **Invoices** — reading and creating invoices between you and the payee
+
+Request additional scopes only when your workflow needs them — a payee asked for less is a payee more likely to accept.
+
+<Note>
+  Write scopes imply their read scope: an invite that requests `write:invoice` also grants `read:invoice`.
+</Note>
+
+## Consent, enforced
+
+Scopes are not a UI convention — they are enforced on every request:
+
+- The payee grants scopes explicitly when accepting the invite. Nothing is shared before acceptance.
+- Every API and dashboard request that touches payee data is checked against the granted scopes. A request without the required scope is rejected, regardless of who makes it.
+- The same scope model governs API keys and OAuth apps, so a key or app scoped to read payout data cannot reach payee KYC or tax records unless that access was granted.
+
+## Invites are bound to the payout
+
+Each invite is cryptographically tied to the payout batch it belongs to and to the invited identity. An invite cannot be redeemed against a different payout, and it cannot be claimed by anyone who cannot authenticate as the invited identity — see [Identity](/concepts/identity) for how that proof works.
+
+## Related pages
+
+<CardGroup cols={2}>
+  <Card title="Identity" icon="fingerprint" href="/concepts/identity">
+    Invite payees by handle, email, wallet, or social account.
+  </Card>
+  <Card title="Tax forms" icon="file-check" href="/dashboard/tax-forms">
+    Review the W-9 and W-8 forms payees share through granted scopes.
+  </Card>
+  <Card title="Authentication" icon="key" href="/developers/authentication">
+    How API keys and OAuth apps use the same scope model.
+  </Card>
+  <Card title="Recipient verification" icon="user-check" href="/controls/recipient-verification">
+    Verify recipient identity and account information before payout.
+  </Card>
+</CardGroup>

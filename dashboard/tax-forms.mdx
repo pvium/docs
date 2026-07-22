@@ -1,0 +1,88 @@
+---
+title: "Tax forms"
+description: "How Pvium collects, tracks, and reviews payee tax forms"
+---
+
+Pvium collects tax forms directly from payees and gives your team one place to review them — the **Tax Forms** page in the dashboard, scoped by payer business profile and organization.
+
+Payees complete and e-sign their own forms, so your team never handles blank documents or chases attachments. Your job is reduced to the part that actually needs judgment: reviewing what was submitted and accepting or declining it.
+
+## Supported forms
+
+| Form | Who submits it |
+| --- | --- |
+| **W-9** | U.S. persons and businesses |
+| **W-8BEN** | Non-U.S. individuals |
+| **W-8BEN-E** | Non-U.S. entities |
+
+## Two status tracks
+
+Every tax form carries two independent statuses, so "the payee finished the form" and "our team is satisfied with it" are never conflated.
+
+### Collection status
+
+The collection status tracks the payee's progress through e-signing:
+
+| Status | Meaning |
+| --- | --- |
+| **Requested** | The form has been requested from the payee |
+| **In progress** | The payee has started but not finished |
+| **Signed** | The payee has signed the form |
+| **Completed** | The form is finished and the document is available |
+| **Expired** | The form is no longer valid and needs to be re-collected |
+| **Rejected** | The form was not accepted |
+
+### Review status
+
+The review status tracks your team's decision: **pending**, **accepted**, or **declined**.
+
+- A form can only be accepted or declined once the payee has signed or completed it — you always review a finished document, never a draft.
+- Declining requires a written reason, which is stored on the form record along with when the review happened.
+- Once your team accepts or declines a form, that decision becomes the form's effective status.
+
+## What each form record keeps
+
+Every tax form record ties the document to the payee and the payer:
+
+- The payee, identified by Pvium handle, email, name, or wallet address
+- The payer business profile and organization the form belongs to
+- Form type, collection status, and review status
+- When the form was signed and when it expires
+- The signed PDF, downloadable at any time
+- The decline reason and review date, if your team declined it
+
+Because expiration is tracked per form, an out-of-date W-8 or W-9 surfaces as **expired** instead of silently staying on file.
+
+## Reviewing forms in the dashboard
+
+The Tax Forms page shows all forms across your business profiles, filterable by business profile, organization, payee search, form type, collection status, and review status.
+
+For each form your team can:
+
+1. **View the PDF** — download and read exactly what the payee signed.
+2. **Accept** — mark the form as reviewed and valid.
+3. **Decline** — reject the form with a required reason, which is kept on the record.
+
+## How tax forms fit the payout flow
+
+Tax forms are part of the compliance record that travels with your payouts:
+
+- In the quick payout flow, choosing **Verified payees only** requires recipients to provide the legal information needed to stay compliant before they can be paid.
+- Reviewed forms, decline reasons, and review dates become part of the exportable audit record, so reviewers can later confirm documentation was collected and reviewed before money moved.
+
+## Related guides
+
+<CardGroup cols={2}>
+  <Card title="Tax certificates" icon="file-check" href="/controls/tax-certificates">
+    When to collect W-9, W-8BEN, and W-8BEN-E records, and what finance teams need later.
+  </Card>
+  <Card title="Recipient verification" icon="user-check" href="/controls/recipient-verification">
+    Verify recipient identity and account information before payout.
+  </Card>
+  <Card title="Compliance and audit" icon="shield" href="/concepts/compliance-and-audit">
+    How compliance checkpoints run across the payout lifecycle.
+  </Card>
+  <Card title="Records and exports" icon="file-spreadsheet" href="/controls/records-and-exports">
+    Export payout records for reconciliation and audit review.
+  </Card>
+</CardGroup>

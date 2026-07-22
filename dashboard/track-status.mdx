@@ -1,0 +1,37 @@
+---
+title: "Track payout status"
+description: "Follow each batch from creation through completion"
+---
+
+The payouts list groups batches into **All**, **Pending**, **Completed**, and **Canceled** tabs, with each batch showing its current status at a glance.
+
+## Batch statuses
+
+| Status | Meaning |
+| --- | --- |
+| **Pending** | Created, not yet funded — still editable until signed, fundable after |
+| **Signed** | Finalized and locked — recipients, amounts, and schedule can no longer change; the batch is ready to fund |
+| **Funded** | The batch has been paid in full |
+| **Partially funded** | Funded for less than the batch total |
+| **Completed** | All payments have settled |
+| **Failed** | One or more payments did not go through |
+| **Expired** | The batch passed its validity window without completing |
+| **Canceled** | The batch was canceled before funding |
+
+## Inside a batch
+
+The batch detail page shows each payment with its recipient, amount, claim date, status, and — once settled — the on-chain transaction hash, so any payment can be verified independently on the rail it settled on.
+
+From here you can also:
+
+- Refresh payments to pick up the latest states
+- Download the payment list as **CSV** or **JSON**
+- Copy the batch hash, merkle root, or transaction hashes for reconciliation
+
+## From tracking to records
+
+Once payments settle, they appear in the organization's **Records** page, aggregated by payee and exportable for accounting — tracking answers "where is this batch now," records answer "who have we paid over time."
+
+<Card title="Records and exports" icon="file-spreadsheet" href="/controls/records-and-exports">
+  Settled payout records, grouped by payee, exportable as CSV.
+</Card>

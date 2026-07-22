@@ -1,0 +1,67 @@
+---
+title: 'Records and exports'
+description: 'Settled payout records, grouped by payee, exportable as CSV'
+---
+
+Every settled payout becomes a permanent record in the **Records** page of the dashboard, organized around the question finance teams ask most: _who have we paid, and how much?_
+
+Records are scoped to the organization you have selected, and only settled payouts appear — a record here means money actually moved.
+
+## How records are organized
+
+Records are grouped by payee. Each payee row shows:
+
+- The payee, by handle, email, or wallet address
+- How many payments they have received
+- The total amount paid to them
+- The currencies they were paid in
+- When they were last paid
+
+Expanding a payee shows their individual transactions: settlement date, amount, currency, payout type, the batch the payment belonged to, and the on-chain transaction reference.
+
+Above the table, two running totals summarize the current view: the number of payees and the total amount settled.
+
+<Note>
+  Payouts sent to a wallet address that is not yet linked to a Pvium account are
+  marked as **unlinked wallet**, so you can see at a glance which recipients
+  have not connected an identity.
+</Note>
+
+## Filtering records
+
+Narrow the view before reading or exporting:
+
+- **Settlement date range** — payments settled between two dates
+- **Payment type** — Instant, Scheduled, Pool, or Milestone
+- **Batch ID** — all payments from one payout batch
+
+## Exporting
+
+**Export CSV** downloads the records matching your current filters — the export is exactly the view you have on screen, so you can produce a quarter's records for one payout type, one batch, or the whole organization.
+
+Because each transaction carries its on-chain reference, exported records can be reconciled line by line against settlement, and imported into accounting tools such as QuickBooks.
+
+## What records answer
+
+| Question                             | Where                                     |
+| ------------------------------------ | ----------------------------------------- |
+| Who have we paid, in total?          | Payee rows with payment counts and totals |
+| What exactly did this payee receive? | The payee's expanded transaction list     |
+| What did we pay for this batch?      | Batch ID filter                           |
+| Did the money really move?           | Each transaction's on-chain reference     |
+| Can we hand this to accounting?      | Filtered CSV export                       |
+
+## Related pages
+
+<CardGroup cols={2}>
+  <Card title='Tax forms' icon='file-check' href='/dashboard/tax-forms'>
+    Records sit alongside tax forms — review payee W-9 and W-8 documents.
+  </Card>
+  <Card
+    title='Compliance and audit'
+    icon='shield'
+    href='/concepts/compliance-and-audit'
+  >
+    How records fit the broader compliance story.
+  </Card>
+</CardGroup>

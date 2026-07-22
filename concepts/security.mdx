@@ -1,0 +1,112 @@
+---
+title: "Security"
+description: "The infrastructure and protocols that protect your payouts"
+---
+
+Security in payouts comes down to two questions: who is holding your money and accounts, and what stops a payout from going wrong?
+
+Pvium's answer starts below Pvium itself. Your accounts and wallets run on infrastructure trusted well beyond us, settlement happens on public networks anyone can verify, and Pvium's own protocol adds the payout-specific protections on top — so no part of the system asks you to simply trust Pvium.
+
+## Built on trusted infrastructure
+
+### Accounts and wallets — in partnership with Privy, a Stripe company
+
+Pvium partners with Privy, a Stripe company, to provide accounts and organization wallets. Through this partnership, authentication, wallet security, and account access are delivered on Privy's dedicated, battle-tested infrastructure — trusted across the industry and backed by Stripe — rather than on account code we built alone.
+
+On top of that foundation, Pvium supports multifactor authentication: enable MFA for every team member who creates, approves, funds, or manages payouts, so a stolen password alone is never enough to reach your payout operations.
+
+### Settlement — public blockchain networks
+
+Payouts settle on-chain. Every funded payout leaves a permanent, independently verifiable settlement trail on a public network — your team can confirm where funds went without taking anyone's word for it, including ours.
+
+## Pvium's payout protocol
+
+On that foundation, Pvium adds the protections specific to payouts: a payout should not be changeable, redirectable, or fundable without the right authorization.
+
+### Non-custodial by design
+
+Pvium does not hold your money. Funds stay with your organization until your team approves and funds a payout, and funded payouts move through an on-chain smart contract escrow that releases funds only against your organization's signed authorizations — Pvium is not an authorizer the contract recognizes.
+
+That matters in a security incident: even if Pvium were compromised, there is no Pvium-held customer balance for an attacker to drain.
+
+<Card title="Learn about non-custodial architecture" icon="shield-check" href="/concepts/non-custodial-payouts">
+  See why non-custodial architecture reduces vendor and custody risk.
+</Card>
+
+### Cryptographic payout finalization
+
+Pvium finalizes payouts cryptographically before funding. Finalization locks the payout instructions so recipients, amounts, schedule, and payout metadata cannot be quietly changed after approval — altering any detail invalidates the signature, and the payout cannot fund.
+
+The signature itself is bound to your organization:
+
+- A payout authorization must be signed by the same organization signer that funded the payout run. A signature from anyone else — including Pvium — is rejected.
+- Every authorization carries hard limits: a maximum amount per payout, a maximum total for the run, and an expiration. Even a valid authorization cannot spend more than your team approved.
+
+The result is that a forged, tampered, or replayed payout cannot execute, and the payout that gets funded is exactly the payout your team reviewed. See [Finalize a payout](/developers/finalize-payout) for the developer flow.
+
+### Funding works like a checkout
+
+Everything up to funding happens inside Pvium's controls. Funding itself deliberately does not: a finalized payout is presented like a checkout link — a fixed, signed bill that your organization pays from its own wallet.
+
+This is why Pvium does not impose team-management controls such as built-in multi-sig at the funding step. Funding governance belongs to whoever controls the money, and your organization already has rules there — a treasurer's sign-off, a multi-approval treasury process, a corporate payment policy. The checkout model lets those external rules sit in front of funding without Pvium having to replicate them:
+
+- **The checkout is safe to hand off.** Because the payout is finalized before funding, whoever pays it can only fund the exact recipients, amounts, and schedule that were reviewed and signed — the link cannot be repurposed to pay anything else.
+- **Your wallet's controls are the funding controls.** Whatever vetting your organization requires before money leaves its wallet applies to Pvium payouts automatically, because the payout is funded like any other payment your treasury makes.
+
+<Note>
+  Support for funding payouts directly from a Safe wallet is in progress, so multi-sig treasuries will be able to apply their signing policy to the funding step natively.
+</Note>
+
+### Settlement integrity
+
+Around settlement, Pvium keeps the record unambiguous:
+
+- Every payout moves through explicit, tracked states, so there is never uncertainty about whether money moved. See [Track payout status](/dashboard/track-status).
+- Idempotency keys ensure retries — from your systems or from network failures — never create a duplicate payout run. See [Idempotency](/developers/idempotency).
+- Failed payouts surface with a reason instead of an unclear status.
+
+For finance teams, this means payout records, approvals, and final settlement status can all be matched during review.
+
+## Access control
+
+Pvium concentrates access control at the boundary that matters most: nothing inside the dashboard or API can move money.
+
+- **Scoped API keys.** API keys carry explicit permissions and can expire. A key scoped to read payout data cannot create payouts, and no API key can fund one. See [Authentication](/developers/authentication).
+- **Scoped app and invite access.** OAuth apps and payee invites operate on granted scopes only — access to payee data is checked on every request.
+- **Protected accounts.** Multifactor authentication keeps a stolen password from being enough to reach payout operations.
+- **The money boundary.** Funding and finalization are not dashboard permissions at all — they require your organization's wallet signature. Whatever access someone has inside Pvium, moving money always crosses the checkout boundary above, gated by your wallet's own controls.
+
+## Backend key handling
+
+Keep API keys and payout authorization keys on your backend. Do not expose them in browser or mobile client code.
+
+Rotate keys when team access changes or when you suspect a key has been exposed, and give each integration the narrowest key permissions that work.
+
+## Related compliance features
+
+Some risk controls belong more naturally under compliance:
+
+- Sanctions screening
+- AML checks
+- W-8 and W-9 collection
+- Recipient identity verification
+- Audit trails and exportable records
+
+<Card title="Compliance controls" icon="shield" href="/controls/recipient-verification">
+  Learn how Pvium handles recipient verification, sanctions screening, AML checks, and records.
+</Card>
+
+## Controls at a glance
+
+| Risk | Control |
+| --- | --- |
+| Provider breach | Non-custodial — no Pvium-held balance to drain |
+| Stolen password | Privy-powered authentication with multifactor authentication |
+| Payout altered after approval | Cryptographic finalization — any change invalidates the signature |
+| Forged or replayed payout | Signature must match your organization's funding signer; authorizations expire |
+| Overspend | Per-payout max and run total max on every authorization |
+| Compromised dashboard account | Money movement requires your organization's wallet signature, not a dashboard permission |
+| Funding outside treasury policy | Checkout-style funding — your own wallet's controls gate the payment |
+| Leaked API key | Scoped permissions, expiring keys, no funding capability |
+| Duplicate payout runs | Idempotency keys |
+| Disputed settlement | On-chain settlement trail reconciled against payout records |

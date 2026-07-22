@@ -1,0 +1,35 @@
+---
+title: "Review and sign"
+description: "Check the batch, then sign to lock it"
+---
+
+Review is where mistakes get caught, because signing is where the batch stops being editable. Nothing after this step can change what gets paid.
+
+## Review the batch
+
+On the batch detail page, check the payout as it will actually execute:
+
+- The recipient list, with each amount and claim date
+- The **total payout**
+- The rail and payment type
+- The payment date, for scheduled payouts
+
+Fix anything now — amounts and claim dates are editable in place until you sign.
+
+## Sign the batch
+
+Select **Sign Batch**. The **Sign to Confirm Payout** dialog summarizes the rail, recipient count, total amount, and scheduled claim date — compare these against what you intended, then select **Sign Record**.
+
+<Note>
+  Signing makes the payout tamper-proof, but it does not initiate the payout. After you sign, the recipients, amounts, and other details cannot be changed — even by Pvium.
+</Note>
+
+Signing is cryptographic finalization: your signature commits to the exact payment set, and altering any detail afterward invalidates it. The payout that gets funded is exactly the payout you reviewed. See [Security](/concepts/security#cryptographic-payout-finalization) for how the guarantee works.
+
+Once signed, the batch shows as finalized and is ready to fund.
+
+## Next step
+
+<Card title="Fund the payout" icon="wallet" href="/dashboard/fund-payout">
+  Pay the signed batch from your organization's wallet.
+</Card>

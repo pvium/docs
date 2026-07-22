@@ -1,0 +1,39 @@
+---
+title: "Create a payout"
+description: "Start a quick payout or a batch payment from the dashboard"
+---
+
+The dashboard has two ways to start a payout:
+
+- **Quick payout** — pay one or a few people in a guided flow. See the [dashboard quickstart](/quickstart-dashboard) for the end-to-end walkthrough.
+- **Batch payment** — a payout batch you configure directly, for larger or recurring runs.
+
+Both produce the same thing: a payout batch you review, sign, and fund.
+
+## Create a batch payment
+
+Select **Create** from your payouts list and fill in the batch:
+
+| Field | What it does |
+| --- | --- |
+| **Batch name** | Names the run in your list and records — for example, "March Content Creators Payout" |
+| **Payment type** | **Instant onchain payment**, **Scheduled onchain payment**, or **Dynamic pool** |
+| **Payee onboarding mode** | **Any payee** — you add recipients and handle compliance externally; **Verified payees only** — recipients must provide the legal information needed to stay compliant before they can be paid |
+| **Rail** | The chain the payout settles on |
+| **Payment date** | Scheduled payouts only — when recipients can claim |
+| **Lock pool funds for** | Dynamic pools only — how long pool funds stay locked |
+| **Description** | Optional context, kept on the batch |
+
+## Choosing a payment type
+
+- **Instant onchain payment** — receivers are paid as soon as the batch is signed and funded.
+- **Scheduled onchain payment** — recipients claim from the payment date. Use scheduled for larger runs (over roughly 200 payees).
+- **Dynamic pool** — you fund a pool once, then draw scheduled payouts from it over time. Pools pair with [payout keys](/developers/signing-keys) for automated distribution.
+
+Creating a batch moves no money — everything stays editable until you sign it.
+
+## Next step
+
+<Card title="Add recipients" icon="user-plus" href="/dashboard/add-recipients">
+  Add receivers from connected accounts or by identity.
+</Card>

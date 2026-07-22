@@ -1,0 +1,39 @@
+---
+title: "Webhooks"
+description: "Receive and verify payout lifecycle events"
+---
+
+Configure a webhook on your organization to receive payout lifecycle events instead of polling. Each organization has its own webhook endpoint configuration and signing secret, set from the dashboard.
+
+## Verifying deliveries
+
+Every delivery carries a signed token (HS256). Verify it with the SDK before trusting the payload:
+
+```ts
+import { verifyPviumWebhookToken } from '@pvium/sdk';
+
+app.post('/webhooks/pvium', (req, res) => {
+  try {
+    const payload = verifyPviumWebhookToken(
+      req.body.token,
+      process.env.PVIUM_WEBHOOK_SECRET!,
+    );
+
+    // payload.event — the event name
+    // payload.data  — the event payload
+    handleEvent(payload.event, payload.data);
+    res.sendStatus(200);
+  } catch {
+    res.sendStatus(401); // invalid signature — do not process
+  }
+});
+```
+
+Pass `expectedEvent` in the options to reject tokens for events your handler does not expect. Tokens include issued-at and expiry claims, which verification checks — replayed or stale deliveries fail.
+
+## Handling events
+
+- Acknowledge quickly with a `2xx` and process asynchronously.
+- Treat deliveries as at-least-once: key your processing on the payout and payment IDs in the payload so a re-delivered event is a no-op.
+- Reconcile against [payout records](/controls/records-and-exports) rather than relying on webhooks alone — records are the source of truth for settled payments.
+

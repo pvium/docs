@@ -1,0 +1,48 @@
+/* Pvium docs theme overrides.
+   Buttons and links use Pvium blue via docs.json colors (#1F7DAD).
+   Sidebar navigation uses faint gold for hover and active states. */
+
+/* Sidebar hover — faint gold wash */
+#sidebar a:hover,
+#sidebar-content a:hover {
+  background-color: rgba(255, 215, 0, 0.08) !important;
+}
+
+/* Sidebar active item — faint gold background, deep gold text */
+#sidebar a[aria-current="page"],
+#sidebar a.active,
+#sidebar li.active > a,
+#sidebar-content a[aria-current="page"] {
+  background-color: rgba(255, 215, 0, 0.14) !important;
+  color: #b8860b !important;
+}
+
+#sidebar a[aria-current="page"] svg,
+#sidebar a.active svg {
+  color: #b8860b !important;
+}
+
+/* Dark mode — brighter gold text so it stays readable on dark backgrounds */
+html.dark #sidebar a[aria-current="page"],
+html.dark #sidebar a.active,
+html.dark #sidebar li.active > a,
+html.dark #sidebar-content a[aria-current="page"] {
+  background-color: rgba(255, 215, 0, 0.1) !important;
+  color: #ffd700 !important;
+}
+
+html.dark #sidebar a[aria-current="page"] svg,
+html.dark #sidebar a.active svg {
+  color: #ffd700 !important;
+}
+
+/* Active tab in the top navigation — gold underline treatment */
+#navbar a[aria-current="page"],
+#topbar a[aria-current="page"] {
+  color: #b8860b !important;
+}
+
+html.dark #navbar a[aria-current="page"],
+html.dark #topbar a[aria-current="page"] {
+  color: #ffd700 !important;
+}

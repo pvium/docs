@@ -1,0 +1,46 @@
+---
+title: 'Authentication'
+description: 'API keys, OAuth access tokens, and signer keys'
+---
+
+Pvium requests authenticate three different things, and it helps to keep them straight:
+
+| Credential             | Authenticates                               | Can it move money?           |
+| ---------------------- | ------------------------------------------- | ---------------------------- |
+| **API key**            | Your organization's backend                 | No                           |
+| **OAuth access token** | A user who granted your organization scopes | No                           |
+| **Signer key**         | Your organization's payout authorization    | Only via the funded checkout |
+
+## API keys
+
+Create API keys per organization in the dashboard. Keys are environment-specific — a sandbox key does not work in production — carry explicit permissions, and can expire.
+
+Send the key in the `x-api-key` header; the SDK does this for you:
+
+```ts
+const pvium = PviumSdk.init({
+  environment: 'sandbox',
+  apiKey: process.env.PVIUM_API_KEY,
+  clientId: process.env.PVIUM_CLIENT_ID,
+});
+```
+
+## OAuth access tokens
+
+When acting on behalf of a user who granted your organization scopes — reading a payee's profile, KYC status, or tax certificates — authenticate with a Bearer token instead. Exchange and refresh tokens through `pvium.oauth`, and pass `accessToken` per request. Access is checked against the user's granted scopes on every call — see [Scopes and invites](/concepts/scopes-and-invites).
+
+## Signer keys
+
+Finalizing a payout requires your organization's signer — a wallet key, not an API credential. It is the strongest credential you hold: its signature is what the pool and scheduled payout smartcontract trusts.
+
+- Keep it in backend secret storage, an HSM, or a KMS; the SDK accepts a custom signing function if the key never leaves that boundary.
+- It is never sent to Pvium — only signatures are.
+
+For the full picture — the funding signer's role and the scoped payout keys it can authorize — see [Signing keys](/developers/signing-keys).
+
+## Handling credentials
+
+- Keep all three credential types out of browser and mobile client code.
+- Rotate API keys when team access changes or on suspected exposure.
+- Give each integration the narrowest key permissions that work.
+- A leaked API key cannot fund a payout — funding always requires the signed checkout — but treat rotation as urgent anyway.

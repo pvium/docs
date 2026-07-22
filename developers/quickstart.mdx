@@ -1,0 +1,258 @@
+---
+title: "Send your first payout"
+description: "Create, finalize, and fund a payout from your backend"
+---
+
+This walkthrough creates a payout, finalizes it with your organization's signer, and produces the funding link your treasury pays — the full loop, from your backend, in TypeScript, Python, or Go.
+
+## Before you begin
+
+- An organization in the [sandbox dashboard](https://sandbox.pvium.com), with an API key and its client ID
+- A signer key for finalization, kept in backend configuration
+
+<Steps>
+  <Step title="Install the SDK">
+    <CodeGroup>
+
+    ```bash TypeScript
+    npm install @pvium/sdk
+    ```
+
+    ```bash Python
+    pip install pvium
+    ```
+
+    ```bash Go
+    go get github.com/pvium/sdks/go-sdk
+    ```
+
+    </CodeGroup>
+  </Step>
+
+  <Step title="Initialize">
+    <CodeGroup>
+
+    ```ts TypeScript
+    import { PviumSdk } from '@pvium/sdk';
+
+    const pvium = PviumSdk.init({
+      environment: 'sandbox',
+      apiKey: process.env.PVIUM_API_KEY,
+      clientId: process.env.PVIUM_CLIENT_ID,
+    });
+    ```
+
+    ```python Python
+    from pvium_sdk import PviumSdk, PviumSdkConfig
+
+    pvium = PviumSdk.init(
+        PviumSdkConfig(
+            environment="sandbox",
+            apiKey="your_api_key",
+            clientId="your_client_id",
+        )
+    )
+    ```
+
+    ```go Go
+    package main
+
+    import (
+        "context"
+        "os"
+
+        pvium "github.com/pvium/sdks/go-sdk"
+    )
+
+    func main() {
+        sdk := pvium.Init(pvium.Config{
+            Environment: pvium.EnvironmentSandbox,
+            APIKey:      os.Getenv("PVIUM_API_KEY"),
+            ClientID:    os.Getenv("PVIUM_CLIENT_ID"),
+        })
+        ctx := context.Background()
+        // ...
+    }
+    ```
+
+    </CodeGroup>
+  </Step>
+
+  <Step title="Create a payout">
+    Create an instant payout in USDC on Base testnet, paying receivers directly:
+
+    <CodeGroup>
+
+    ```ts TypeScript
+    const payout = await pvium.payout.create({
+      chain: 'base-testnet',
+      type: 'Instant',
+      payoutCurrency: 'USDC',
+      label: 'July contributor payouts',
+      payments: [
+        { receiver: '0xA1b2…', amount: 250, memo: 'July retainer' },
+        { receiver: '0xC3d4…', amount: 100, memo: 'Bug bounty' },
+      ],
+    });
+    ```
+
+    ```python Python
+    payout = pvium.payout.create(
+        {
+            "chain": "base-testnet",
+            "type": "Instant",
+            "payoutCurrency": "USDC",
+            "label": "July contributor payouts",
+            "payments": [
+                {"receiver": "0xA1b2…", "amount": 250, "memo": "July retainer"},
+                {"receiver": "0xC3d4…", "amount": 100, "memo": "Bug bounty"},
+            ],
+        }
+    )
+    ```
+
+    ```go Go
+    payout, err := sdk.Payouts.Create(ctx, models.CreatePayoutInput{
+        Chain:          "base-testnet",
+        Type:           models.PayoutTypeInstant,
+        PayoutCurrency: "USDC",
+        Label:          "July contributor payouts",
+        Payments: []models.PayoutPayment{
+            {Receiver: "0xA1b2…", Amount: 250, Memo: "July retainer"},
+            {Receiver: "0xC3d4…", Amount: 100, Memo: "Bug bounty"},
+        },
+    }, nil)
+    if err != nil {
+        log.Fatal(err)
+    }
+    ```
+
+    </CodeGroup>
+
+    Creating a payout stores intent — no money moves, and you can still add, edit, or remove payments.
+  </Step>
+
+  <Step title="Add recipients by identity (optional)">
+    If you know a recipient by identity rather than wallet address, add them the same way the dashboard does:
+
+    <CodeGroup>
+
+    ```ts TypeScript
+    const { added, errors } = await payout.addRecipients({
+      recipients: [
+        { identityType: 'github', identityValue: 'octocat', defaultPayoutAmount: 100 },
+        { identityType: 'email', identityValue: 'dev@example.com', defaultPayoutAmount: 150 },
+      ],
+    });
+    ```
+
+    ```python Python
+    result = payout.addRecipients(
+        {
+            "recipients": [
+                {"identityType": "github", "identityValue": "octocat", "defaultPayoutAmount": 100},
+                {"identityType": "email", "identityValue": "dev@example.com", "defaultPayoutAmount": 150},
+            ]
+        }
+    )
+    ```
+
+    ```go Go
+    githubAmount, emailAmount := 100.0, 150.0
+
+    result, err := sdk.Payouts.AddRecipients(ctx, payout.Data.ID, []models.PayoutRecipient{
+        {IdentityType: "github", IdentityValue: "octocat", DefaultPayoutAmount: &githubAmount},
+        {IdentityType: "email", IdentityValue: "dev@example.com", DefaultPayoutAmount: &emailAmount},
+    }, nil)
+    if err != nil {
+        log.Fatal(err)
+    }
+    ```
+
+    </CodeGroup>
+
+    Recipients added this way must already be Pvium users — the identity resolves to their account and wallet, and the result separates added recipients from errors. Use `resolveRecipients` first to check who resolves. To pay someone who is not on Pvium yet, send them an invite instead. See [Identity](/concepts/identity).
+  </Step>
+
+  <Step title="Finalize and get the funding link">
+    Finalization signs the payout with your organization's signer, locking recipients, amounts, and schedule:
+
+    <CodeGroup>
+
+    ```ts TypeScript
+    import { createSignerFromPrivateKey } from '@pvium/sdk';
+
+    const signer = createSignerFromPrivateKey(process.env.PVIUM_SIGNER_KEY!);
+    const finalized = await payout.finalize(signer);
+
+    console.log(finalized.data.fundingUrl);
+    // https://sandbox.pvium.com/batch/0x…
+    ```
+
+    ```python Python
+    import os
+
+    finalized = payout.finalize(os.environ["PVIUM_SIGNER_KEY"])
+
+    print(finalized.fundingUrl)
+    # https://sandbox.pvium.com/batch/0x…
+    ```
+
+    ```go Go
+    finalized, err := sdk.Payouts.Finalize(ctx, payout, os.Getenv("PVIUM_SIGNER_KEY"))
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    fmt.Println(finalized.Data.FundingURL)
+    // https://sandbox.pvium.com/batch/0x…
+    ```
+
+    </CodeGroup>
+
+    For scheduled payouts you can create and finalize in one call with `createFinalized`.
+  </Step>
+
+  <Step title="Fund the payout">
+    The funding URL is a checkout for the exact payout you signed. Open it — or hand it to whoever controls your treasury wallet — and pay it. Funding is the only step that moves money, and it can only fund what was finalized. See [Finalize a payout](/developers/finalize-payout).
+  </Step>
+
+  <Step title="Track it">
+    Poll the payout or list its payments:
+
+    <CodeGroup>
+
+    ```ts TypeScript
+    const current = await pvium.payout.get(payout.id);
+    const payments = await payout.listPayments();
+    ```
+
+    ```python Python
+    current = pvium.payout.get(payout.id)
+    payments = payout.listPayments()
+    ```
+
+    ```go Go
+    current, err := sdk.Payouts.Get(ctx, payout.Data.ID, nil)
+    if err != nil {
+        log.Fatal(err)
+    }
+    payments, err := sdk.Payouts.ListPayments(ctx, payout.Data.ID, nil, nil)
+    ```
+
+    </CodeGroup>
+
+    For push updates, configure a [webhook](/developers/webhooks) on your organization.
+  </Step>
+</Steps>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Create a payout" icon="plus" href="/developers/create-payout">
+    All payout types, chains, currencies, and payment fields.
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/developers/webhooks">
+    Verify and handle payout lifecycle events.
+  </Card>
+</CardGroup>

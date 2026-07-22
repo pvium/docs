@@ -1,0 +1,201 @@
+---
+title: "SDKs"
+description: "Official Pvium SDKs for TypeScript, Python, and Go"
+---
+
+Pvium ships three official SDKs from the [pvium/sdks](https://github.com/pvium/sdks) monorepo. All three expose the same service surface — payouts, invites, OAuth, and webhook helpers — and share cross-SDK parity fixtures, so payout hashing, signing, and Merkle behavior are identical regardless of language.
+
+| SDK | Package | Install |
+| --- | --- | --- |
+| **TypeScript / Node** | [`@pvium/sdk`](https://www.npmjs.com/package/@pvium/sdk) on npm | `npm install @pvium/sdk` |
+| **Python** | [`pvium`](https://pypi.org/project/pvium/) on PyPI (imported as `pvium_sdk`) | `pip install pvium` |
+| **Go** | `github.com/pvium/sdks/go-sdk` | `go get github.com/pvium/sdks/go-sdk` |
+
+## Initialize
+
+<CodeGroup>
+
+```ts TypeScript
+import { PviumSdk } from '@pvium/sdk';
+
+const pvium = PviumSdk.init({
+  environment: 'sandbox', // or 'production'
+  apiKey: process.env.PVIUM_API_KEY,
+  clientId: process.env.PVIUM_CLIENT_ID,
+});
+```
+
+```python Python
+from pvium_sdk import PviumSdk, PviumSdkConfig
+
+pvium = PviumSdk.init(
+    PviumSdkConfig(
+        environment="sandbox",  # or "production"
+        apiKey="your_api_key",
+        clientId="your_client_id",
+    )
+)
+```
+
+```go Go
+package main
+
+import (
+	"os"
+
+	pvium "github.com/pvium/sdks/go-sdk"
+)
+
+func main() {
+	sdk := pvium.Init(pvium.Config{
+		Environment: pvium.EnvironmentSandbox, // or EnvironmentProduction
+		APIKey:      os.Getenv("PVIUM_API_KEY"),
+		ClientID:    os.Getenv("PVIUM_CLIENT_ID"),
+	})
+	_ = sdk
+}
+```
+
+</CodeGroup>
+
+## Create and finalize a payout
+
+The same flow in each SDK: create the payout, finalize it with your organization's signer, and get the funding link.
+
+<CodeGroup>
+
+```ts TypeScript
+import { PviumSdk, createSignerFromPrivateKey } from '@pvium/sdk';
+
+const pvium = PviumSdk.init({
+  environment: 'sandbox',
+  apiKey: process.env.PVIUM_API_KEY,
+  clientId: process.env.PVIUM_CLIENT_ID,
+});
+
+const payout = await pvium.payout.create({
+  chain: 'base-testnet',
+  type: 'Instant',
+  payoutCurrency: 'USDC',
+  label: 'July contributor payouts',
+  payments: [
+    { receiver: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e', amount: 100, memo: 'July payout' },
+  ],
+});
+
+const signer = createSignerFromPrivateKey(process.env.PVIUM_SIGNER_KEY!);
+const finalized = await payout.finalize(signer);
+
+console.log(finalized.data.fundingUrl);
+```
+
+```python Python
+from uuid import uuid4
+
+from pvium_sdk import PayoutCurrency, PviumSdk, PviumSdkConfig
+
+pvium = PviumSdk.init(
+    PviumSdkConfig(
+        environment="sandbox",
+        apiKey="your_api_key",
+        clientId="your_client_id",
+    )
+)
+
+scheduled = pvium.payout.createFinalized(
+    {
+        "id": str(uuid4()),
+        "type": "Scheduled",
+        "chain": "base-testnet",
+        "name": "March creator payouts",
+        "payoutCurrency": PayoutCurrency.USDC,
+        "scheduleDate": 1777488000,
+        "payments": [
+            {
+                "receiver": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+                "amount": 100,
+                "memo": "March payout",
+            },
+        ],
+    },
+    "your_signer_private_key",
+    {"claimDate": 1777488000},
+)
+
+print(scheduled.fundingUrl)
+```
+
+```go Go
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"os"
+
+	pvium "github.com/pvium/sdks/go-sdk"
+	"github.com/pvium/sdks/go-sdk/models"
+)
+
+func main() {
+	sdk := pvium.Init(pvium.Config{
+		Environment: pvium.EnvironmentSandbox,
+		APIKey:      os.Getenv("PVIUM_API_KEY"),
+		ClientID:    os.Getenv("PVIUM_CLIENT_ID"),
+	})
+
+	ctx := context.Background()
+
+	payout, err := sdk.Payouts.Create(ctx, models.CreatePayoutInput{
+		Chain:          "base-testnet",
+		Type:           models.PayoutTypeInstant,
+		PayoutCurrency: "USDC",
+		Label:          "July contributor payouts",
+		Payments: []models.PayoutPayment{
+			{Receiver: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e", Amount: 100, Memo: "July payout"},
+		},
+	}, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	finalized, err := sdk.Payouts.Finalize(ctx, payout, os.Getenv("PVIUM_SIGNER_KEY"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(finalized.Data.FundingURL)
+}
+```
+
+</CodeGroup>
+
+## Language notes
+
+- **TypeScript** — written in TypeScript with full type definitions; the primary SDK and the one this documentation's examples default to.
+- **Python** — the PyPI package is `pvium`, the import is `pvium_sdk`. `AsyncPviumSdk` mirrors the same surface for async codebases.
+- **Go** — services hang off the SDK struct (`sdk.Payouts`, `sdk.Invites`, `sdk.OAuth`, `sdk.Endpoints`) and every call takes a `context.Context`.
+
+<Tip>
+  Payouts with more than 200 payees should be created as **Scheduled** rather than Instant — use `createFinalized` to create and finalize them in one call.
+</Tip>
+
+## What every SDK covers
+
+- **Payouts** — create, list, and get payouts; manage payments and identity-based recipients; finalize with your signer and get funding links; authorize delegated signing keys.
+- **Invites** — payout invites and organization open invites, including the cryptographic invite proofs.
+- **OAuth** — token exchange and refresh for acting on a user's granted scopes.
+- **Webhook helpers** — verify webhook deliveries before trusting them.
+- **Signing utilities** — private-key signers plus lower-level hashing helpers for custom signer setups.
+
+## Where to start
+
+<CardGroup cols={2}>
+  <Card title="Send your first payout" icon="rocket" href="/developers/quickstart">
+    The full create → finalize → fund → track loop.
+  </Card>
+  <Card title="Authentication" icon="key" href="/developers/authentication">
+    API keys, OAuth tokens, and signer keys.
+  </Card>
+</CardGroup>

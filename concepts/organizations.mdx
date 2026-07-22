@@ -1,0 +1,56 @@
+---
+title: "Organizations"
+description: "The workspace your payouts, records, payees, and keys live in"
+---
+
+An **organization** is the workspace everything in Pvium happens inside: payouts, records, tax forms, payees, API keys, and webhooks all belong to exactly one organization.
+
+If you have used the API, you may see organizations referred to as *client apps* in some older paths — they are the same thing.
+
+## What an organization scopes
+
+Everything operational is per-organization:
+
+- **Payouts and batches** — created, finalized, and tracked within the organization
+- **Records** — settled payout history and CSV exports
+- **Tax forms** — payee W-9 and W-8 documents collected for that organization's payouts
+- **Payees** — connected accounts and invited recipients
+- **API keys and webhooks** — each organization has its own credentials and webhook secret
+- **OAuth grants** — payees grant scopes to an organization, not to your whole business
+
+Switching organizations in the dashboard switches all of this at once.
+
+## Organizations belong to a business profile
+
+A **business profile** is the legal payer — the entity that appears as the payer on tax and compliance records. Each organization is linked to one business profile, and one business profile can own several organizations.
+
+That two-level structure is what lets you separate operations without fragmenting the legal entity: contractor payroll and creator rewards can run as different organizations — different keys, payees, records — while both pay out on behalf of the same business.
+
+## Creating an organization
+
+From the dashboard, select **Create Organization** and provide:
+
+- A **name** — for example, "Acme Payroll"
+- The **business profile** it pays on behalf of
+- Optionally a **description**, **website**, and **logo** — shown to payees when they are asked to grant your organization access
+
+Once created, the organization has a **client ID**, and you can issue API keys, configure webhooks, and start creating payouts under it.
+
+## When to create more than one
+
+- **Separate payout programs** — payroll vs. rewards vs. bounties, each with its own records and payee roster
+- **Separate products** — each product integrates with its own credentials, so a leaked key or misconfigured webhook is contained
+- **Separate teams** — each team operates in its own workspace without seeing the others' payouts
+
+Keep in mind that payee consent is per-organization: a payee who granted scopes to one organization has not granted them to your others.
+
+## Related pages
+
+<CardGroup cols={2}>
+  <Card title="Scopes and invites" icon="key" href="/concepts/scopes-and-invites">
+    Payees grant data access to an organization through scoped invites.
+  </Card>
+  <Card title="API overview" icon="code" href="/developers/api-overview">
+    Organizations from the integration side: client IDs, keys, environments.
+  </Card>
+</CardGroup>

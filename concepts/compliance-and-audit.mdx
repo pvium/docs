@@ -1,0 +1,78 @@
+---
+title: "Compliance and audit"
+description: "How Pvium supports compliant payout workflows and audit review"
+---
+
+Pvium treats compliance as part of the payout workflow, not a separate after-the-fact process.
+
+Checks run before money moves, every step is recorded as it happens, and the records stay attached to the payout. When an auditor or finance reviewer asks a question months later, the answer already exists — nothing has to be reconstructed from emails, spreadsheets, or memory.
+
+## Compliance across the payout lifecycle
+
+Every payout passes through compliance checkpoints in order. A payout that fails a checkpoint does not move forward.
+
+<Steps>
+  <Step title="Before a recipient can be paid">
+    Recipient verification establishes who you are paying: identity checks, account ownership checks, sanctions screening, and AML checks. Required tax certificates — W-9 for U.S. persons and businesses, W-8BEN and W-8BEN-E for non-U.S. individuals and entities — are collected up front, so no one has to chase documents after money has already moved.
+  </Step>
+  <Step title="Before a payout is funded">
+    Finance can review recipients, amounts, and totals exactly as they will be paid, then sign to lock the payout. Funding is a separate step gated by your organization's own wallet, so creating a payout never moves money by itself.
+  </Step>
+  <Step title="When the payout is funded">
+    Cryptographic finalization locks the approved payout so what funds is exactly what was reviewed, and on-chain settlement produces an independently verifiable trail for each funded payout.
+  </Step>
+  <Step title="After the payout">
+    The complete record — creator, approver, recipients, amounts, checks that ran, funding time, and final status — is kept on the payout and can be exported for reconciliation, accounting, and audit review.
+  </Step>
+</Steps>
+
+## What Pvium supports
+
+**Recipient compliance**
+
+- Recipient identity checks
+- Account ownership checks
+- Sanctions screening
+- AML checks
+- W-8 and W-9 collection and tax certificate tracking
+
+**Payout controls**
+
+- Payout review and cryptographic signing before funding
+- Funding gated by your organization's own wallet
+- Correction flows when recipient information is incomplete or fails validation
+
+**Records**
+
+- Audit trails attached to every payout
+- Exportable records for reconciliation and accounting tools such as QuickBooks
+
+## Audit-ready by default
+
+The questions finance and compliance teams get asked after a payout each map to a record Pvium already keeps:
+
+| Question | Answered by |
+| --- | --- |
+| Who was paid, and how much? | Recipients and amounts on the payout record |
+| Were they verified? | Recipient verification results attached before funding |
+| Was their tax status documented? | Tax certificate status kept on the recipient and payout record |
+| Who approved the payout? | The payout record shows who created it and who signed it |
+| What changed before approval? | Payout audit trail |
+| Did the money actually move? | Payout state plus the on-chain settlement trail |
+| Can we hand this to an auditor? | Exportable records covering the full payout lifecycle |
+
+Because these records are created as the payout happens, an audit is a matter of exporting what exists — not reconstructing what happened.
+
+## Related guides
+
+<CardGroup cols={2}>
+  <Card title="Recipient verification" icon="user-check" href="/controls/recipient-verification">
+    Verify recipients before sending payouts.
+  </Card>
+  <Card title="Tax certificates" icon="file-check" href="/controls/tax-certificates">
+    Track W-9, W-8BEN, and W-8BEN-E records before payout.
+  </Card>
+  <Card title="Records and exports" icon="file-spreadsheet" href="/controls/records-and-exports">
+    Export payout records for finance, accounting, and audits.
+  </Card>
+</CardGroup>

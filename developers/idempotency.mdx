@@ -1,0 +1,37 @@
+---
+title: "Idempotency"
+description: "Prevent duplicate payout creation"
+---
+
+Duplicate payout runs are the most expensive kind of retry bug. Pvium's idempotency model is built on identifiers you supply, so a retried request references the same payout instead of creating a second one.
+
+## Supply your own payout ID
+
+`create` accepts an `id` — your own identifier for the payout. Derive it from the thing that makes the payout unique in your system (an invoice ID, a payroll period, a job ID), not from a random value generated per attempt:
+
+```ts
+const payout = await pvium.payout.create({
+  id: `payroll-2026-07`,     // stable across retries
+  chain: 'base',
+  type: 'Instant',
+  payoutCurrency: 'USDC',
+  payments,
+});
+```
+
+`createFinalized` requires an `id` for exactly this reason — a create-and-finalize call must be safely retryable.
+
+## Nonces
+
+Every payout also carries a `nonce`. The SDK generates one automatically; pass your own only if you need the nonce to be deterministic across systems.
+
+## Retry pattern
+
+1. Compute the payout `id` from your business key before calling Pvium.
+2. On a timeout or network error, retry the same call with the same `id`.
+3. If the payout already exists, fetch it with `pvium.payout.get(id)` and continue from its current state — it may already be created or even finalized.
+4. Key webhook processing on payout and payment IDs, so re-deliveries are no-ops. See [Webhooks](/developers/webhooks).
+
+## What finalization adds
+
+Finalization is naturally idempotent in effect: it signs the payout's exact contents, and funding accepts only that signed payout. Even if your retry logic misfires at the create step, nothing can be paid twice from one funding — the checkout funds the signed payment set, once.
