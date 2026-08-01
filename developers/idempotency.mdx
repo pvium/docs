@@ -25,7 +25,39 @@ const payout = await pvium.payout.create({
 });
 ```
 
-`createFinalized` requires an `id` for exactly this reason — a create-and-finalize call must be safely retryable.
+`createFinalized` requires an `id` for exactly this reason - a create-and-finalize call must be safely retryable.
+
+## Create a local payout run first
+
+For automated payout runs that add payees to a funded pool or escrow, create a local payout-run record before calling Pvium. Store a durable UUID on that local record, then pass it as `finalizeOptions.id` when you call `addPayments`.
+
+That UUID becomes the linked scheduled child payout ID in Pvium. If the request succeeds but your worker times out before it sees the response, retry with the same local record and the same `finalizeOptions.id` instead of generating a fresh payout.
+
+```ts
+const localRun = await db.payoutRuns.upsert({
+  key: "rewards:" + period,
+  payoutId: deterministicUuid,
+  status: "submitting",
+  payments,
+});
+
+try {
+  await pvium.payout.addPayments(fundedPool.data, {
+    payments: localRun.payments,
+    signer,
+    finalizeOptions: {
+      id: localRun.payoutId,
+      claimDate,
+    },
+  });
+} catch (error) {
+  const existing = await pvium.payout.get(localRun.payoutId);
+  // If the payout exists and belongs to this pool, continue from it.
+}
+```
+
+The API uses that `id` as the payout batch primary key. A duplicate retry will not create a second child payout, but it also will not replay the original response. Treat the duplicate or ambiguous error as a recovery path: fetch `pvium.payout.get(id)`, verify it belongs to the expected parent pool or escrow, then mark your local run complete.
+
 
 ## Individual payments
 

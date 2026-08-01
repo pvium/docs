@@ -31,6 +31,26 @@ An invite is not a payment to an address — it is an invitation tied to a speci
 
 Invites are also cryptographically bound to the payout they belong to, so an invite cannot be redeemed against a different payout or by a different identity than the one you entered.
 
+## From identity to on-chain payout
+
+```mermaid
+flowchart TD
+    A["Identity<br/>Pvium handle · Email · Wallet<br/>GitHub · X · Discord · Telegram"]
+    B["Pvium Identity Resolution Engine<br/>Cryptographically verifiable identity mapping"]
+    C["Wallet address resolution<br/>+ Compliance, AML & sanctions screening"]
+    D{"Checks pass?"}
+    E["On-chain payout"]
+    F["Payout blocked<br/>Correction flow for the recipient"]
+
+    A --> B
+    B --> C
+    C --> D
+    D -- Pass --> E
+    D -- Fail --> F
+```
+
+No payout reaches the rail without passing through this pipeline: the identity you entered is mapped to a verified account, the account resolves to a wallet, and compliance, AML, and sanctions screening run before anything settles. A failed check stops the payout — it never fails silently into a wrong or sanctioned wallet.
+
 ## Connected accounts
 
 Team members who have already connected their accounts via OAuth appear as **connected accounts** when you add receivers — already resolved, selectable directly from a list. Recurring payees stop being invites and become a roster.

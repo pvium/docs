@@ -1,14 +1,14 @@
 ---
-title: "Quickstart"
-description: "Send an instant or scheduled payout"
+title: 'Quickstart'
+description: 'Send an instant or scheduled payout'
 ---
 
 Use the quick payout flow to pay one or a few people from the dashboard — records, screening, and documents included — without setting up a custom integration.
 
-Quick payouts support two payout types, controlled by the payment date:
+Quick payouts support two payout types:
 
-- **Instant payouts**: leave the payment date unset and funds move as soon as you pay.
-- **Scheduled payouts**: set a payment date and recipients can claim from that date.
+- **Instant payouts** pay people right away. The recipient gets their money as soon as the payout goes through — right for a bounty, a refund, or any payment that is owed now.
+- **Scheduled payouts** pay people on a future date. You set the payout up today and the recipients claim the payment when that date arrives — right for payroll-like cycles, release dates, or anything agreed for later.
 
 ## Before you begin
 
@@ -26,9 +26,7 @@ You need:
 - Payout amounts for each recipient
 - Tax certificates, such as W-8 or W-9 records, when required
 
-<Tip>
-  Start in sandbox before sending live payouts in production.
-</Tip>
+<Tip>Start in sandbox before sending live payouts in production.</Tip>
 
 ## Send your first payout
 
@@ -37,6 +35,7 @@ You need:
     Sign in to the Pvium dashboard for your environment and start a quick payout.
 
     Quick payout is designed for paying one or a few people, with records, screening, and documents handled in the same flow.
+
   </Step>
 
   <Step title="Choose how recipients are handled">
@@ -46,6 +45,7 @@ You need:
     - **Verified payees only**: each recipient must provide the legal information needed to stay compliant before they can be paid.
 
     Then choose the **rail** the payout settles on, and continue.
+
   </Step>
 
   <Step title="Set the payment details">
@@ -55,6 +55,7 @@ You need:
 
     - Leave it unset to pay instantly — funds move as soon as you pay.
     - Pick a date to schedule the payout — recipients can claim from that date.
+
   </Step>
 
   <Step title="Add receivers">
@@ -64,24 +65,28 @@ You need:
     - Add new payees by Pvium handle, wallet address, email, or a GitHub, X, Discord, or Telegram handle.
 
     Enter the amount for each receiver, adjust per-receiver claim dates if needed, and confirm the **total payout** shown next to Continue.
+
   </Step>
 
   <Step title="Review and sign">
     The **Sign to Confirm Payout** dialog summarizes the rail, recipient count, total amount, and scheduled claim date. Check these against what you intended — this is where an incorrect recipient, amount, or date gets caught.
 
     Signing makes the payout tamper-proof: after you sign, the recipients, amounts, and other details cannot be changed — even by Pvium. Signing does not move money yet.
+
   </Step>
 
   <Step title="Fund the payout">
     Fund the signed payout from your payout account. Pvium does not hold your money before this point — funds move only when you fund the payout, and only against the exact details you signed.
 
     Instant payouts pay out as soon as you fund them. Scheduled payouts become claimable on the payment date.
+
   </Step>
 
   <Step title="Track delivery">
     Track each payout through its lifecycle.
 
     The dashboard shows whether a payout was created, signed, funded, delivered, failed, expired, or canceled.
+
   </Step>
 
   <Step title="Export records">
@@ -105,10 +110,14 @@ Pvium helps with:
 ## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Payout types" icon="layers" href="/concepts/payout-types">
+  <Card title='Payout types' icon='layers' href='/concepts/payout-types'>
     Learn when to use instant, scheduled, pooled, and milestone payouts.
   </Card>
-  <Card title="Non-custodial architecture" icon="shield-check" href="/concepts/non-custodial-payouts">
+  <Card
+    title='Non-custodial architecture'
+    icon='shield-check'
+    href='/concepts/non-custodial-payouts'
+  >
     Learn what non-custodial means and why it matters for payout operations.
   </Card>
 </CardGroup>

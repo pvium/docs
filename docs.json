@@ -15,6 +15,9 @@
       "family": "DM Sans"
     }
   },
+  "icons": {
+    "library": "lucide"
+  },
   "favicon": "/favicon.png",
   "navigation": {
     "tabs": [
@@ -33,12 +36,12 @@
             "group": "Concepts",
             "pages": [
               "concepts/identity",
-              "concepts/organizations",
-              "concepts/payout-types",
-              "concepts/scopes-and-invites",
-              "concepts/security",
               "concepts/compliance-and-audit",
-              "concepts/non-custodial-payouts"
+              "concepts/non-custodial-payouts",
+              "concepts/payout-types",
+              "concepts/security",
+              "concepts/organizations",
+              "concepts/scopes-and-invites"
             ]
           },
           {
@@ -107,12 +110,12 @@
             "group": "Concepts",
             "pages": [
               "concepts/identity",
-              "concepts/organizations",
-              "concepts/payout-types",
-              "concepts/scopes-and-invites",
-              "concepts/security",
               "concepts/compliance-and-audit",
-              "concepts/non-custodial-payouts"
+              "concepts/non-custodial-payouts",
+              "concepts/payout-types",
+              "concepts/security",
+              "concepts/organizations",
+              "concepts/scopes-and-invites"
             ]
           }
         ]
