@@ -5,12 +5,45 @@ description: "Pvium never holds your money — what that means for security and 
 
 Pvium is non-custodial: your money never sits in a Pvium account. There is no balance to deposit, no funds held on your behalf, and no point in the payout lifecycle where Pvium takes possession of your money. Funds stay with your organization until your team reviews, approves, and funds the payout directly.
 
+**Custodial Platforms**
+
+```mermaid
+flowchart LR
+    A["<b>Your funds</b>"]:::custodial
+    B["<b>Provider's pooled account</b><br/><small>They hold your money<br/>and earn on the float</small>"]:::custodial
+    C["<b>Provider controls release</b><br/><small>Internal reviews, gates & delays</small>"]:::custodial
+    D["<b>Recipient paid</b><br/><small>When the provider gets to it</small>"]:::custodial
+
+    A --> B
+    B --> C
+    C --> D
+
+    classDef custodial fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+```
+
+**Pvium Non-Custodial**
+
+```mermaid
+flowchart LR
+    A["<b>Your funds</b><br/><small>In your own wallet</small>"]:::pvium
+    B["<b>Smart contract orchestration</b><br/><small>Releases only against your<br/>signed authorization</small>"]:::pvium
+    C["<b>Instant payout</b>"]:::pvium
+    D["<b>Claimable payout</b><br/><small>From the date you set</small>"]:::pvium
+
+    A --> B
+    B --> C
+    B --> D
+
+    classDef pvium fill:#e0f2fe,stroke:#1F7DAD,color:#0c4a6e
+```
+
 ## The core guarantee
 
-Pvium coordinates payouts. It does not control money. Two things follow directly from that:
+Pvium coordinates payouts. It does not control money. Three things follow directly from that:
 
 - **Pvium cannot move your funds.** Every payout run must be explicitly authorized by your organization. Pvium cannot create that authorization for you, alter it after the fact, or redirect an approved payout somewhere else.
 - **Your funds are never exposed through Pvium.** Because Pvium holds nothing, there is no Pvium balance that could be frozen, lost, or stolen. An outage or security incident at Pvium does not put your operating funds at risk — they were never there.
+- **Pvium does not earn on your money.** Custodial platforms hold your funds and earn on the float while you wait. With Pvium, funds sit in your wallet or in the payout contract — and Pvium makes nothing on them in either place. There is no incentive to hold your money longer, so nothing is gated or delayed.
 
 You do not have to trust Pvium with your money to use Pvium. The system is designed so that trust is not required.
 

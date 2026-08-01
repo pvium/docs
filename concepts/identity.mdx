@@ -5,6 +5,24 @@ description: 'Pay people by an identity you already know — handle, email, wall
 
 Most payout systems make you collect banking or wallet details before you can pay anyone. Pvium inverts that: you pay people by an identity you already know, and Pvium handles resolving that identity to a real, verified person.
 
+```mermaid
+flowchart LR
+    A["<b>Identity</b><br/><small>Handle · Email · Wallet<br/>GitHub · X · Discord · Telegram</small>"]
+    B["<b>Identity Resolution Engine</b><br/><small>Verifiable identity mapping</small>"]
+    C["<b>User & Wallet Screening</b><br/><small>Compliance, AML & sanctions checks</small>"]
+    D{"Pass?"}
+    E["<b>On-chain payout</b>"]
+    F["<b>Blocked</b><br/><small>Correction flow</small>"]
+
+    A --> B
+    B --> C
+    C --> D
+    D -- Pass --> E
+    D -- Fail --> F
+```
+
+No payout reaches the rail without passing through this pipeline: the identity you entered is mapped to a verified account, the account resolves to a wallet, and compliance, AML, and sanctions screening run before anything settles. A failed check stops the payout — it never fails silently into a wrong or sanctioned wallet.
+
 ## Invite identities
 
 A payee can be identified and invited by any of these:
@@ -30,26 +48,6 @@ An invite is not a payment to an address — it is an invitation tied to a speci
 3. **The identity resolves to a verified account.** The payee's Pvium account, powered by Privy, a Stripe company, links their identities and wallet in one place — so a payee invited by GitHub handle today can also be found by email tomorrow.
 
 Invites are also cryptographically bound to the payout they belong to, so an invite cannot be redeemed against a different payout or by a different identity than the one you entered.
-
-## From identity to on-chain payout
-
-```mermaid
-flowchart TD
-    A["Identity<br/>Pvium handle · Email · Wallet<br/>GitHub · X · Discord · Telegram"]
-    B["Pvium Identity Resolution Engine<br/>Cryptographically verifiable identity mapping"]
-    C["Wallet address resolution<br/>+ Compliance, AML & sanctions screening"]
-    D{"Checks pass?"}
-    E["On-chain payout"]
-    F["Payout blocked<br/>Correction flow for the recipient"]
-
-    A --> B
-    B --> C
-    C --> D
-    D -- Pass --> E
-    D -- Fail --> F
-```
-
-No payout reaches the rail without passing through this pipeline: the identity you entered is mapped to a verified account, the account resolves to a wallet, and compliance, AML, and sanctions screening run before anything settles. A failed check stops the payout — it never fails silently into a wrong or sanctioned wallet.
 
 ## Connected accounts
 
