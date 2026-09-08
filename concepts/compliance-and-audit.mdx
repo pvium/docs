@@ -3,13 +3,11 @@ title: "Compliance and audit"
 description: "How Pvium supports compliant payout workflows and audit review"
 ---
 
-Pvium treats compliance as part of the payout workflow, not a separate after-the-fact process.
-
-Checks run before money moves, every step is recorded as it happens, and the records stay attached to the payout. When an auditor or finance reviewer asks a question months later, the answer already exists — nothing has to be reconstructed from emails, spreadsheets, or memory.
+Pvium supports recipient verification, tax form collection, payout review, and record exports. Use these features to collect required information before payment and retain records for finance and audit review.
 
 ## Compliance across the payout lifecycle
 
-Every payout passes through compliance checkpoints in order. A payout that fails a checkpoint does not move forward.
+The recipient checks required before payment depend on the payout’s onboarding mode. With **Verified payees only**, recipients must complete the required checks before they can be paid. With **Any payee**, your organization handles compliance externally.
 
 <Steps>
   <Step title="Before a recipient can be paid">
@@ -19,7 +17,7 @@ Every payout passes through compliance checkpoints in order. A payout that fails
     Finance can review recipients, amounts, and totals exactly as they will be paid, then sign to lock the payout. Funding is a separate step gated by your organization's own wallet, so creating a payout never moves money by itself.
   </Step>
   <Step title="When the payout is funded">
-    Cryptographic finalization locks the approved payout so what funds is exactly what was reviewed, and on-chain settlement produces an independently verifiable trail for each funded payout.
+    Funding uses the payout details signed during finalization. The blockchain transaction provides a reference your team can use to verify the transfer.
   </Step>
   <Step title="After the payout">
     The complete record — creator, approver, recipients, amounts, checks that ran, funding time, and final status — is kept on the payout and can be exported for reconciliation, accounting, and audit review.

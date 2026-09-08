@@ -3,7 +3,7 @@ title: "Idempotency"
 description: "Prevent duplicate payout creation"
 ---
 
-Duplicate payout runs are the most expensive kind of retry bug. Pvium's idempotency model is built on identifiers you supply, so a retried request references the same payout instead of creating a second one.
+Reuse the same payout ID when retrying a create request. This prevents a timeout or network error from causing your retry to create a second payout.
 
 ## Supply your own payout ID
 
@@ -25,7 +25,7 @@ const payout = await pvium.payout.create({
 });
 ```
 
-`createFinalized` requires an `id` for exactly this reason - a create-and-finalize call must be safely retryable.
+`createFinalized` requires a payout `id`. Reuse that ID on retries so you can look up the payout if the original response is lost.
 
 ## Create a local payout run first
 

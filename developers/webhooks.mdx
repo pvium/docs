@@ -3,7 +3,7 @@ title: "Webhooks"
 description: "Receive, verify, and handle payout lifecycle events"
 ---
 
-Configure a webhook on your organization to receive events instead of polling. Each organization has its own webhook URL and signing secret, set from the dashboard.
+To receive events instead of polling, open your organization settings in the dashboard and go to the **Webhooks** tab. Configure the webhook URL and signing secret for that organization.
 
 ## Delivery format
 
@@ -21,7 +21,7 @@ The `token` is an HS256-signed JWT whose payload is `{ event, data, iat, exp }`,
 
 ## Verifying deliveries
 
-Every SDK ships the same two helpers: `resolvePviumWebhookPayload` (recommended — verifies the token and returns the unwrapped event and data) and `verifyPviumWebhookToken` (low-level, when you already hold the raw token).
+Use `resolvePviumWebhookPayload` to verify the signed token in a webhook request body and return the verified event and data. If you have already extracted the token, pass it directly to `verifyPviumWebhookToken`. Each SDK provides both helpers.
 
 <CodeGroup>
 
@@ -86,7 +86,7 @@ func pviumWebhook(w http.ResponseWriter, r *http.Request) {
 
 </CodeGroup>
 
-Verification checks the signature, the expiry claim, and — when you pass an expected event — that the token's event matches. Replayed, stale, or tampered deliveries fail.
+Verification checks the signature, rejects expired tokens, and checks the event name when an expected event is supplied. A valid token can be delivered more than once; use the deduplication guidance below to avoid processing the same event twice.
 
 ## Events
 
@@ -97,7 +97,8 @@ All payloads carry `appId` — your organization's ID.
 | `batch.payee.added` | A payee is attached to a batch — by direct add, or when an invitee accepts |
 | `batch.funded` | On-chain funding lands for a batch |
 | `batch.payee.claimed` | A recipient claims their payment from a funded batch |
-| `oauth.invite.accepted` | An invited identity completes the OAuth flow and grants your organization scopes |
+| `oauth.invite.accepted` | An invited identity completes OAuth and its authorization is active immediately |
+| `oauth.authorization.activated` | A previously pending invite authorization becomes active after required onboarding checks complete |
 | `contract.created` | A contract (such as an invoice) is created against your organization |
 | `payment.attached` | A transfer is attached to a contract installment |
 
@@ -105,7 +106,7 @@ All payloads carry `appId` — your organization's ID.
 
 <AccordionGroup>
   <Accordion title="batch.payee.added">
-    Emitted in two flows — invite acceptance and direct add — so the field set varies slightly between them; code against the union.
+    The event can follow either invite acceptance or a direct addition to a batch. Your handler must accept both payload variants; for example, do not require invite details for a payee added directly.
 
     ```json
     {
@@ -172,7 +173,7 @@ All payloads carry `appId` — your organization's ID.
     ```
   </Accordion>
   <Accordion title="oauth.invite.accepted">
-    Delivers the payee's resolved identity plus the authorization your organization was granted, including access and refresh tokens.
+    Delivers the payee's resolved identity plus the active authorization your organization was granted, including access and refresh tokens. This event is emitted when the authorization is active immediately. If payee screening is pending, handle `oauth.authorization.activated` instead.
 
     ```json
     {
@@ -192,6 +193,30 @@ All payloads carry `appId` — your organization's ID.
         "identityValue": "alice@example.com",
         "batchId": "uuid-or-null",
         "acceptedAt": "2026-05-12T18:31:04.000Z"
+      }
+    }
+    ```
+  </Accordion>
+  <Accordion title="oauth.authorization.activated">
+    Sent when an invite authorization that was pending payee screening becomes active. The authorization is active only after the required onboarding checks for the invite scopes have completed. This event does not prove that the user is payable in a particular batch; use the batch-scoped `isPayable` check before adding or finalizing a Strict batch.
+
+    ```json
+    {
+      "appId": "65f...",
+      "clientId": "app_abcd1234",
+      "user": { "id": "67d...", "handle": "alice", "email": "alice@example.com" },
+      "authorization": {
+        "id": "aa1...",
+        "isActive": true,
+        "status": "active",
+        "scopes": ["read:user", "read:legal_id", "read:tax_forms"],
+        "activatedAt": "2026-05-12T18:31:04.000Z"
+      },
+      "previousStatus": "pending_aml",
+      "invite": {
+        "identityType": "email",
+        "identityValue": "alice@example.com",
+        "batchId": "uuid-or-null"
       }
     }
     ```
@@ -228,10 +253,11 @@ All payloads carry `appId` — your organization's ID.
 
 ## Retries and idempotency
 
-Pvium retries failed deliveries with exponential backoff, so treat your handler as idempotent. Dedup on the stable key each event carries:
+Pvium retries failed deliveries with increasing delays between attempts. Store an identifier for each processed event and skip duplicate deliveries. Use the following identifiers for each event type:
 
 - `batch.funded` and `batch.payee.claimed` — the `transactionHash`
 - `payment.attached` — `paymentData.id`
-- `oauth.invite.accepted` and `batch.payee.added` — `invite.id` or `authorization.id`
+- `oauth.invite.accepted` and `oauth.authorization.activated` — `authorization.id`
+- `batch.payee.added` — `invite.id` or `authorization.id`
 
 Acknowledge quickly with a `2xx` and process asynchronously, and reconcile against [payout records](/controls/records-and-exports) rather than relying on webhooks alone — records are the source of truth for settled payments.

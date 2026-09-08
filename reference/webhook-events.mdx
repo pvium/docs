@@ -5,4 +5,45 @@ description: "Reference for payout webhook events"
 
 This reference lists webhook events emitted during the payout lifecycle.
 
-Add event names, payload examples, delivery behavior, and retry semantics.
+## OAuth authorization events
+
+### `oauth.invite.accepted`
+
+Sent when an invited user completes the OAuth flow and the resulting
+authorization is active immediately. If the invite scopes require payee
+screening, accepting the invite may instead leave the authorization pending.
+In that case, do not treat this event as proof that the user can receive a
+payment.
+
+### `oauth.authorization.activated`
+
+Sent when a previously pending invite authorization becomes active. This is
+the event to handle when onboarding required additional checks. Activation
+means the user has completed the onboarding requirements for the requested
+invite scopes, including payee screening when those scopes or the payment
+corridor require it. The event does not replace the batch-scoped
+`isPayable` check: call `isPayable` before adding or finalizing a Strict batch.
+
+```json
+{
+	"event": "oauth.authorization.activated",
+	"data": {
+		"appId": "65f...",
+		"clientId": "app_abcd1234",
+		"user": { "id": "67d...", "handle": "alice" },
+		"authorization": {
+			"id": "aa1...",
+			"status": "active",
+			"isActive": true,
+			"scopes": ["read:user", "read:legal_id", "read:tax_forms"],
+			"activatedAt": "2026-05-12T18:31:04.000Z"
+		},
+		"previousStatus": "pending_aml",
+		"invite": {
+			"identityType": "email",
+			"identityValue": "alice@example.com",
+			"batchId": "uuid-or-null"
+		}
+	}
+}
+```

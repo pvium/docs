@@ -3,6 +3,6 @@ title: "Failed payouts"
 description: "Investigate and resolve payout failures"
 ---
 
-Failed payouts need clear diagnosis, retry behavior, and escalation paths.
+Open the batch detail page and check each payment’s status to identify which payments failed. Review any failure details before deciding whether to retry.
 
-Document failure reasons, retry controls, recipient corrections, expiration, and support escalation.
+For API timeouts or duplicate-create errors, fetch the payout by its existing ID before creating another payout. See [Idempotency](/developers/idempotency) for recovery steps and [Track payout status](/dashboard/track-status) for batch and payment statuses.

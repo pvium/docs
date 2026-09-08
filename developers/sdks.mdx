@@ -3,7 +3,7 @@ title: "SDKs"
 description: "Official Pvium SDKs for TypeScript, Python, and Go"
 ---
 
-Pvium ships three official SDKs from the [pvium/sdks](https://github.com/pvium/sdks) monorepo. All three expose the same service surface — payouts, invites, OAuth, and webhook helpers — and share cross-SDK parity fixtures, so payout hashing, signing, and Merkle behavior are identical regardless of language.
+Pvium ships three official SDKs from the [pvium/sdks](https://github.com/pvium/sdks) monorepo. Each SDK provides methods for payouts, invites, OAuth, and webhook verification. Shared test fixtures check that the SDKs produce matching payout hashes, signatures, and Merkle proofs.
 
 | SDK | Package | Install |
 | --- | --- | --- |
@@ -60,7 +60,7 @@ func main() {
 
 ## Create and finalize a payout
 
-The same flow in each SDK: create the payout, finalize it with your organization's signer, and get the funding link.
+The examples below create a payout, sign its details with your organization’s signing key, and return a link you can open to fund it.
 
 <CodeGroup>
 
@@ -174,8 +174,8 @@ func main() {
 ## Language notes
 
 - **TypeScript** — written in TypeScript with full type definitions; the primary SDK and the one this documentation's examples default to.
-- **Python** — the PyPI package is `pvium`, the import is `pvium_sdk`. `AsyncPviumSdk` mirrors the same surface for async codebases.
-- **Go** — services hang off the SDK struct (`sdk.Payouts`, `sdk.Invites`, `sdk.OAuth`, `sdk.Endpoints`) and every call takes a `context.Context`.
+- **Python** — the PyPI package is `pvium`, the import is `pvium_sdk`. Use `AsyncPviumSdk` to call SDK methods with `await` in asynchronous Python code.
+- **Go** — access services through the SDK struct (`sdk.Payouts`, `sdk.Invites`, `sdk.OAuth`, `sdk.Endpoints`) and every call takes a `context.Context`.
 
 <Tip>
   Payouts with more than 200 payees should be created as **Scheduled** rather than Instant — use `createFinalized` to create and finalize them in one call.
@@ -193,7 +193,7 @@ func main() {
 
 <CardGroup cols={2}>
   <Card title="Send your first payout" icon="rocket" href="/developers/quickstart">
-    The full create → finalize → fund → track loop.
+    Create and sign a payout, fund it from your wallet, and check its status.
   </Card>
   <Card title="Authentication" icon="key" href="/developers/authentication">
     API keys, OAuth tokens, and signer keys.

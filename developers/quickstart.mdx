@@ -3,12 +3,14 @@ title: "Send your first payout"
 description: "Create, finalize, and fund a payout from your backend"
 ---
 
-This walkthrough creates a payout, finalizes it with your organization's signer, and produces the funding link your treasury pays — the full loop, from your backend, in TypeScript, Python, or Go.
+This walkthrough shows how to create and sign a payout with the TypeScript, Python, or Go SDK. You then use the returned funding link to fund the payout from your organization’s wallet and check its status.
 
 ## Before you begin
 
 - An organization in the [sandbox dashboard](https://sandbox.pvium.com), with an API key and its client ID
 - A signer key for finalization, kept in backend configuration
+
+To create the API key, open your organization settings in the sandbox dashboard and go to the **API Keys** tab. To create or register the signer key, go to the **Signing Keys** tab in the same settings. See [Authentication](/developers/authentication) and [Signing keys](/developers/signing-keys) for setup instructions.
 
 <Steps>
   <Step title="Install the SDK">
@@ -129,11 +131,11 @@ This walkthrough creates a payout, finalizes it with your organization's signer,
 
     </CodeGroup>
 
-    Creating a payout stores intent — no money moves, and you can still add, edit, or remove payments.
+    Creating a payout saves its details without transferring funds. You can add, edit, or remove payments until you finalize it.
   </Step>
 
   <Step title="Add recipients by identity (optional)">
-    If you know a recipient by identity rather than wallet address, add them the same way the dashboard does:
+    Call `addRecipients` to add a recipient by a known identity, such as an email address or GitHub username. Pvium looks up the associated account and wallet:
 
     <CodeGroup>
 
@@ -214,7 +216,7 @@ This walkthrough creates a payout, finalizes it with your organization's signer,
   </Step>
 
   <Step title="Fund the payout">
-    The funding URL is a checkout for the exact payout you signed. Open it — or hand it to whoever controls your treasury wallet — and pay it. Funding is the only step that moves money, and it can only fund what was finalized. See [Finalize a payout](/developers/finalize-payout).
+    Open the returned funding URL, or share it with the person responsible for your treasury wallet. Review the signed payout details on the page, then authorize funding from that wallet. Creating and finalizing the payout do not transfer funds. See [Finalize a payout](/developers/finalize-payout).
   </Step>
 
   <Step title="Track it">

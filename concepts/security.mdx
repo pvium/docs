@@ -5,7 +5,7 @@ description: "The infrastructure and protocols that protect your payouts"
 
 Security in payouts comes down to two questions: who is holding your money and accounts, and what stops a payout from going wrong?
 
-Pvium's answer starts below Pvium itself. Your accounts and wallets run on infrastructure trusted well beyond us, settlement happens on public networks anyone can verify, and Pvium's own protocol adds the payout-specific protections on top — so no part of the system asks you to simply trust Pvium.
+Privy provides account and wallet infrastructure. Public blockchain networks record transfers. Pvium uses signed payout instructions to authorize payments and detect changes to those instructions.
 
 ## Built on trusted infrastructure
 
@@ -21,7 +21,7 @@ Payouts settle on-chain. Every funded payout leaves a permanent, independently v
 
 ## Pvium's payout protocol
 
-On that foundation, Pvium adds the protections specific to payouts: a payout should not be changeable, redirectable, or fundable without the right authorization.
+Pvium requires signed payout instructions before funding. The following sections explain who signs those instructions, what they authorize, and how your team funds the payout.
 
 ### Non-custodial by design
 
@@ -46,7 +46,7 @@ The result is that a forged, tampered, or replayed payout cannot execute, and th
 
 ### Funding works like a checkout
 
-Everything up to funding happens inside Pvium's controls. Funding itself deliberately does not: a finalized payout is presented like a checkout link — a fixed, signed bill that your organization pays from its own wallet.
+After finalization, Pvium provides a funding link for the signed payout. The person responsible for your organization’s wallet opens the link, reviews the payout, and authorizes the funding transaction.
 
 This is why Pvium does not impose team-management controls such as built-in multi-sig at the funding step. Funding governance belongs to whoever controls the money, and your organization already has rules there — a treasurer's sign-off, a multi-approval treasury process, a corporate payment policy. The checkout model lets those external rules sit in front of funding without Pvium having to replicate them:
 
@@ -59,7 +59,7 @@ This is why Pvium does not impose team-management controls such as built-in mult
 
 ### Settlement integrity
 
-Around settlement, Pvium keeps the record unambiguous:
+Use payout statuses, stable payout IDs, and failure details to track settlement and recover from errors:
 
 - Every payout moves through explicit, tracked states, so there is never uncertainty about whether money moved. See [Track payout status](/dashboard/track-status).
 - Idempotency keys ensure retries — from your systems or from network failures — never create a duplicate payout run. See [Idempotency](/developers/idempotency).
@@ -69,7 +69,7 @@ For finance teams, this means payout records, approvals, and final settlement st
 
 ## Access control
 
-Pvium concentrates access control at the boundary that matters most: nothing inside the dashboard or API can move money.
+Dashboard access and API credentials let users manage payout data. Finalization requires a signing key, and funding requires authorization from the funding wallet.
 
 - **Scoped API keys.** API keys carry explicit permissions and can expire. A key scoped to read payout data cannot create payouts, and no API key can fund one. See [Authentication](/developers/authentication).
 - **Scoped app and invite access.** OAuth apps and payee invites operate on granted scopes only — access to payee data is checked on every request.

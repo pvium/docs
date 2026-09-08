@@ -3,7 +3,7 @@ title: "Scopes and invites"
 description: "Invites request consented, scoped access to a payee's verified information"
 ---
 
-An invite in Pvium is more than a payment link. It is a request: *pay this identity, and ask them to share the specific information your organization needs to pay them compliantly.*
+A payee invite asks the recipient to sign in with a specified identity and grant your organization access to the information requested in the invite, such as profile details or tax forms.
 
 That request is expressed in **scopes** — named permissions over the payee's verified data. The payee sees what is being requested and grants it by accepting the invite. Your organization gets exactly what it asked for, nothing more.
 
@@ -32,7 +32,7 @@ Beyond the defaults, an invite can request more, grouped by category:
 - **Social** — the payee's GitHub, X, Telegram, or Discord handle
 - **Invoices** — reading and creating invoices between you and the payee
 
-Request additional scopes only when your workflow needs them — a payee asked for less is a payee more likely to accept.
+Request only the additional data your workflow needs. The payee sees these permissions when deciding whether to accept the invite.
 
 <Note>
   Write scopes imply their read scope: an invite that requests `write:invoice` also grants `read:invoice`.
@@ -40,11 +40,24 @@ Request additional scopes only when your workflow needs them — a payee asked f
 
 ## Consent, enforced
 
-Scopes are not a UI convention — they are enforced on every request:
+Pvium checks the permissions granted by the payee before returning their data:
 
 - The payee grants scopes explicitly when accepting the invite. Nothing is shared before acceptance.
 - Every API and dashboard request that touches payee data is checked against the granted scopes. A request without the required scope is rejected, regardless of who makes it.
 - The same scope model governs API keys and OAuth apps, so a key or app scoped to read payout data cannot reach payee KYC or tax records unless that access was granted.
+
+## When an invite becomes active
+
+Accepting an invite records consent, but it does not always make the
+authorization active immediately. If the requested scopes require payee
+screening, the authorization remains pending until those checks complete. The
+`oauth.authorization.activated` webhook marks the transition to active after
+the required onboarding checks for the invite scopes have passed.
+
+An active authorization is not the same as batch payability. For Strict
+payouts, use the batch-scoped `isPayable` SDK method before adding recipients
+or finalizing. It reports blockers such as missing scopes, tax forms, or an
+authorized wallet for that batch's chain.
 
 ## Invites are bound to the payout
 

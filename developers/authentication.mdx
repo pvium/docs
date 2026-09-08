@@ -3,7 +3,7 @@ title: 'Authentication'
 description: 'API keys, OAuth access tokens, and signer keys'
 ---
 
-Pvium requests authenticate three different things, and it helps to keep them straight:
+Use an API key for requests from your organization’s backend, an OAuth access token for access granted by a user, and a signing key to authorize payout finalization:
 
 | Credential             | Authenticates                               | Can it move money?           |
 | ---------------------- | ------------------------------------------- | ---------------------------- |
@@ -13,7 +13,7 @@ Pvium requests authenticate three different things, and it helps to keep them st
 
 ## API keys
 
-Create API keys per organization in the dashboard. Keys are environment-specific — a sandbox key does not work in production — carry explicit permissions, and can expire.
+To create an API key, open your organization settings in the dashboard and go to the **API Keys** tab. Each key belongs to that organization and environment. A sandbox key does not work in production. Keys have explicit permissions and can expire.
 
 Send the key in the `x-api-key` header; the SDK does this for you:
 
@@ -31,7 +31,7 @@ When acting on behalf of a user who granted your organization scopes — reading
 
 ## Signer keys
 
-Finalizing a payout requires your organization's signer — a wallet key, not an API credential. It is the strongest credential you hold: its signature is what the pool and scheduled payout smartcontract trusts.
+To finalize a payout, sign its details with your organization’s signing key. The smart contract verifies the signature before executing the authorized payout.
 
 - Keep it in backend secret storage, an HSM, or a KMS; the SDK accepts a custom signing function if the key never leaves that boundary.
 - It is never sent to Pvium — only signatures are.

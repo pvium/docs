@@ -18,7 +18,7 @@ finalized.data.merkleRoot;  // commitment to the exact payment set
 
 ## What finalization does
 
-Under the hood, the SDK:
+When you call `payout.finalize(signer)`, the SDK:
 
 1. Computes the payout hash from its funding token, timing rules, and rail.
 2. Builds a Merkle tree over the exact payments, so each recipient's claim is provable against the signed root.
@@ -28,11 +28,11 @@ Because the signature commits to the full payment set, changing anything afterwa
 
 ## The funding link
 
-`fundingUrl` points at the environment's dashboard checkout (for example `https://sandbox.pvium.com/batch/0x…`). It represents a fixed, signed bill: whoever opens it can fund exactly the payout you signed — nothing else. Hand it to whoever controls your treasury wallet; their controls govern the payment.
+Open `fundingUrl` to fund the finalized payout in the dashboard (for example `https://sandbox.pvium.com/batch/0x…`). The page shows the signed payout details. Share the link with the person responsible for your treasury wallet so they can review the payout and authorize funding under your organization's approval process.
 
 ## Create and finalize in one call
 
-For scheduled payouts, skip the intermediate intent:
+For scheduled payouts, call `pvium.payout.createFinalized` to create and sign the payout in one call:
 
 ```ts
 const finalized = await pvium.payout.createFinalized(
@@ -59,16 +59,16 @@ const finalized = await pvium.payout.createFinalized(
 
 ## Signers
 
-The signer is your organization's **signing key**, generated in the dashboard's Signing Key tab — see [Signing keys](/developers/signing-keys).
+Use your organization's **signing key** to sign the payout finalization. To create or register this key, open your organization settings in the dashboard and go to the **Signing Keys** tab. See [Signing keys](/developers/signing-keys) for setup instructions.
 
 - `createSignerFromPrivateKey(key)` creates an EVM signer from a private key held in backend configuration.
 - Pass a custom signing function when your key lives elsewhere, such as an HSM or KMS.
 
-Keep signer keys strictly on your backend. The signer *is* your organization's authorization — treat it with the same care as the treasury wallet itself.
+Keep private signing keys on your backend or in your signing service. Anyone with access to the key can sign payout finalizations.
 
 ## Payout keys
 
-For pooled payouts, scoped **payout keys** can be authorized on the finalized pool — secondary keys with a per-transaction max, a total max, and an expiration, so an operational service can pay out of the pool within a bounded envelope while your signing key stays cold.
+To let an automated service pay from a funded pool, authorize a **payout key** for that pool. Set a maximum amount per transaction, a maximum total amount, and an expiration. The service uses the payout key to make payments within those limits without access to your organization’s signing key.
 
 <Card title="Signing keys" icon="key" href="/developers/signing-keys">
   The funding signer, payout keys, and how to authorize them from the dashboard or SDK.

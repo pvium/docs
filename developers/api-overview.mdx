@@ -5,7 +5,7 @@ description: 'Build automated payout workflows with Pvium'
 
 Use the Pvium API and Node SDK to create payouts, resolve recipients from identities, finalize payouts with your organization's signature, and track and reconcile everything from your backend.
 
-The integration follows the same shape as the dashboard flow:
+To send and track a payout from your backend:
 
 1. **Create** a payout with payments, or with recipients identified by handle, email, wallet, or social account.
 2. **Finalize** it with your organization's signer — this locks recipients, amounts, and schedule cryptographically.
@@ -16,14 +16,14 @@ Creating and finalizing never move money. Funding is a separate, wallet-gated st
 
 ## Environments
 
-Pvium runs three fully isolated environments. Accounts, organizations, API keys, and payouts do not carry across environments.
+Pvium separates production and sandbox environments. Accounts, organizations, API keys, and payouts do not carry across environments.
 
 | Environment    | API base URL                       | Dashboard                                      | Use for                                                                          |
 | -------------- | ---------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------- |
 | **Production** | `https://api.pvium.com/v1`         | [pvium.com](https://pvium.com)                 | Live payouts on mainnet rails                                                 |
 | **Sandbox**    | `https://api-sandbox.pvium.com/v1` | [sandbox.pvium.com](https://sandbox.pvium.com) | Integration testing on test rails such as `base-testnet` |
 
-The SDKs select the environment for you:
+Set `environment` when initializing the SDK to choose the API endpoint for your requests:
 
 <CodeGroup>
 
@@ -111,7 +111,7 @@ Create separate organizations for separate payout programs — for example, one 
   icon='building'
   href='/concepts/organizations'
 >
-  What organizations scope, and how they relate to business profiles.
+  Learn which data and credentials belong to an organization and how to link it to a business profile.
 </Card>
 
 ## Next steps

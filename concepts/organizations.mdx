@@ -9,7 +9,7 @@ If you have used the API, you may see organizations referred to as *client apps*
 
 ## What an organization scopes
 
-Everything operational is per-organization:
+Each organization has its own:
 
 - **Payouts and batches** — created, finalized, and tracked within the organization
 - **Records** — settled payout history and CSV exports
@@ -18,13 +18,13 @@ Everything operational is per-organization:
 - **API keys and webhooks** — each organization has its own credentials and webhook secret
 - **OAuth grants** — payees grant scopes to an organization, not to your whole business
 
-Switching organizations in the dashboard switches all of this at once.
+When you switch organizations in the dashboard, you view and manage the selected organization’s payouts, records, payees, and settings.
 
 ## Organizations belong to a business profile
 
 A **business profile** is the legal payer — the entity that appears as the payer on tax and compliance records. Each organization is linked to one business profile, and one business profile can own several organizations.
 
-That two-level structure is what lets you separate operations without fragmenting the legal entity: contractor payroll and creator rewards can run as different organizations — different keys, payees, records — while both pay out on behalf of the same business.
+For example, contractor payroll and creator rewards can use separate organizations with different keys, payees, and records. Link both organizations to the same business profile if the same legal entity pays both groups.
 
 ## Creating an organization
 

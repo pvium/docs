@@ -45,7 +45,7 @@ Pvium coordinates payouts. It does not control money. Three things follow direct
 - **Your funds are never exposed through Pvium.** Because Pvium holds nothing, there is no Pvium balance that could be frozen, lost, or stolen. An outage or security incident at Pvium does not put your operating funds at risk — they were never there.
 - **Pvium does not earn on your money.** Custodial platforms hold your funds and earn on the float while you wait. With Pvium, funds sit in your wallet or in the payout contract — and Pvium makes nothing on them in either place. There is no incentive to hold your money longer, so nothing is gated or delayed.
 
-You do not have to trust Pvium with your money to use Pvium. The system is designed so that trust is not required.
+Your organization retains control of its wallet and authorizes each payout before funds leave it.
 
 ## Wallets powered by Privy, a Stripe company
 
@@ -57,7 +57,7 @@ Non-custodial means your funds stay in your organization's own wallet — and th
 
 ## Security benefits
 
-Non-custodial design changes your risk profile in concrete ways. Whatever goes wrong — at Pvium, in your team, or with a credential — the damage is bounded by design.
+Keeping funds outside Pvium removes the need for a provider-held balance. API permissions and payout key limits restrict what each credential can authorize.
 
 <AccordionGroup>
   <Accordion title="No pooled balance to attack">
@@ -72,8 +72,8 @@ Non-custodial design changes your risk profile in concrete ways. Whatever goes w
   <Accordion title="A leaked credential cannot drain funds">
     With a custodial provider, a compromised API key can often move stored funds. With Pvium, an API key can create and manage payout records, but it cannot fund anything — funding is a separate, signed step that stays under your control. Even a leaked payout authorization is capped by its limits and dies at its expiration.
   </Accordion>
-  <Accordion title="Every failure has a small blast radius">
-    The layers compound: a compromised dashboard account cannot move money because funding requires your organization's wallet signature, a compromised API key is bounded by its scopes, a compromised authorization is bounded by its limits and expiry, and a compromised Pvium is bounded by non-custody. No single failure — including ours — reaches your funds.
+  <Accordion title="Separate controls for accounts, API keys, and payout keys">
+    Dashboard access alone does not authorize wallet transactions. API keys permit only the operations in their scopes. Payout keys can spend from their authorized pool within specified limits and until expiration. Protect the funding wallet and private signing keys because they authorize funding and payout finalization.
   </Accordion>
 </AccordionGroup>
 
